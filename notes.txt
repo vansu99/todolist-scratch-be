@@ -1,0 +1,12 @@
+- Query String (req.query)
+req.query -> return object
+vd: http://localhost:3000/products?id=6
+
+- Route parameters (req.params)
+
+vd: http://localhost:3000/products/6
+
+- POST Query String
+Content-Type: application/x-www-form-urlencoded
+
+vd: name=iMacPro&price=2399

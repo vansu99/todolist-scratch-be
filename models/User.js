@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const configs = require("../configs/config");
+const { options } = require("joi");
 
 const UserSchema = new mongoose.Schema(
   {
@@ -24,11 +25,9 @@ const UserSchema = new mongoose.Schema(
     email: {
       type: String,
       required: [true, "Email is required"],
+      lowercase: true,
       unique: [true, "User already exits"],
-      match: [
-        /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-        "Please add a valid email",
-      ],
+      match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, "Please add a valid email"],
     },
 
     role: {
@@ -43,6 +42,13 @@ const UserSchema = new mongoose.Schema(
       minlength: [6, "Password requied at least 6 character"],
       select: false,
     },
+    confirmPassword: {
+      type: String,
+      required: true,
+      select: false,
+    },
+    resetTokenExpiration: String,
+    passwordResetExpires: Date,
   },
   { toJSON: { virtuals: true }, toObject: { virtuals: true }, timestamps: true }
 );
@@ -61,11 +67,8 @@ UserSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-// Sign JWT and return JWTToken
-UserSchema.methods.getSignedJwtToken = function () {
-  return jwt.sign({ id: this._id }, configs.JWT_SECRET, {
-    expiresIn: "10h",
-  });
-};
+UserSchema.set('toJSON', {
+  transform: (doc, { __v, password, ...rest }, options) => rest
+})
 
 module.exports = mongoose.model("User", UserSchema);
