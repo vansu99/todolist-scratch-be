@@ -5,6 +5,7 @@ const {
   getCardBySlug,
   getCardById,
   updateSingleCardById,
+  removeSingleCardById
 } = require("../controllers/cards.controller");
 
 const Card = require("../models/Card");
@@ -19,7 +20,11 @@ router.route("/").get(advancedResults(Card), getAllCards).post(createCards);
 
 router.route("/:slug").get(advancedResults(Card), getCardBySlug);
 
-router.route("/:id").get(getCardById).patch(updateSingleCardById);
+router
+  .route("/:id")
+  .get(getCardById)
+  .patch(updateSingleCardById)
+  .delete(removeSingleCardById)
 
 // router.get("/search/by", temperatureFilter);
 // router.get("/sheet", moduleExcel);

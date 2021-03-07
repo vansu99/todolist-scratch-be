@@ -81,3 +81,18 @@ exports.updateSingleCardById = asyncHandler(async (req, res, next) => {
     return;
   }
 });
+
+// @desc    Remove Card By ID
+// @route   DELETE /api/cards/:id
+// @access  Private/User
+// @note    route parameters
+exports.removeSingleCardById = asyncHandler(async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    await Card.findByIdAndRemove(id);
+    res.status(200).json({ msg: "Xóa thành công" });
+  } catch (error) {
+    next(createError(400, "Invalid Card ID"));
+    return;
+  }
+});

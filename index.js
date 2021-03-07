@@ -26,7 +26,13 @@ const server = require("http").Server(app);
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-app.use(cors());
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "PUT", "DELETE", "PATCH", "POST"],
+    allowedHeaders: "Content-Type, Authorization, Origin, X-Requested-With, Accept",
+  })
+);
 
 app.use(cookieParser());
 
