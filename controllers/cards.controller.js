@@ -82,6 +82,69 @@ exports.updateSingleCardById = asyncHandler(async (req, res, next) => {
   }
 });
 
+// @desc    Add Check List Single Card By ID
+// @route   POST /api/cards/:id/checklist
+// @access  Private/User
+// @note    route parameters
+exports.addCheckListTodoCard = asyncHandler(async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const updates = req.body;
+    const card = await Card.findOneAndUpdate(
+      { _id: id },
+      {
+        $push: { checklist: updates },
+      },
+      { new: true }
+    );
+    return res.status(201).json({ card });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// @desc    UPDATE Check List Single Card By ID
+// @route   POST /api/cards/:id/checklist
+// @access  Private/User
+// @note    route parameters
+// exports.updateCheckListTodoCard = asyncHandler(async (req, res, next) => {
+//   try {
+//     const id = req.params.id;
+//     const updates = req.body;
+//     const card = await Card.findOneAndUpdate(
+//       { _id: id },
+//       {
+//         $set: { checklist: updates },
+//       },
+//       { new: true }
+//     );
+//     return res.status(201).json({ card });
+//   } catch (error) {
+//     next(error);
+//   }
+// });
+
+// @desc    Remove Check List Single Card By ID
+// @route   DELETE /api/cards/:id/checklist
+// @access  Private/User
+// @note    route parameters
+exports.removeCheckListTodoCard = asyncHandler(async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const itemRemove = req.body;
+    const card = await Card.findOneAndUpdate(
+      { _id: id },
+      {
+        $pull: { checklist: itemRemove },
+      },
+      { new: true }
+    );
+    return res.status(201).json({ card });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // @desc    Remove Card By ID
 // @route   DELETE /api/cards/:id
 // @access  Private/User
