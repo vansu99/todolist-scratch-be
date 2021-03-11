@@ -7,7 +7,8 @@ const {
   updateSingleCardById,
   removeSingleCardById,
   addCheckListTodoCard,
-  removeCheckListTodoCard
+  removeCheckListTodoCard,
+  addLabelTodoCard
 } = require("../controllers/cards.controller");
 
 const Card = require("../models/Card");
@@ -31,7 +32,15 @@ router
 router
   .route("/:id/checklist")
   .patch(addCheckListTodoCard)
+
+
+router
+  .route("/:id/checklist/:checklistId")
   .delete(removeCheckListTodoCard)
+
+router
+  .route("/:id/label")
+  .patch(addLabelTodoCard)
 
 // router.get("/search/by", temperatureFilter);
 // router.get("/sheet", moduleExcel);

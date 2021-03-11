@@ -30,8 +30,8 @@ const CardsSchema = new mongoose.Schema(
       default: [],
     },
     label: {
-      type: mongoose.Schema.ObjectId,
-      ref: "Label",
+      type: Array,
+      default: [],
     },
     date: {
       type: Date,

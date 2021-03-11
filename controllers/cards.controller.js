@@ -8,7 +8,7 @@ const moment = require("moment");
 // @access Private/User
 exports.getAllCards = asyncHandler(async (req, res, next) => {
   try {
-    const cards = await Card.find({}).populate("label");
+    const cards = await Card.find();
     if (!cards) {
       throw createError.NotFound("Cards not exist");
     } else {
@@ -125,17 +125,38 @@ exports.addCheckListTodoCard = asyncHandler(async (req, res, next) => {
 // });
 
 // @desc    Remove Check List Single Card By ID
-// @route   DELETE /api/cards/:id/checklist
+// @route   DELETE /api/cards/:id/checklist/:checklistId
 // @access  Private/User
 // @note    route parameters
 exports.removeCheckListTodoCard = asyncHandler(async (req, res, next) => {
   try {
     const id = req.params.id;
-    const itemRemove = req.body;
+    const checklistIdRemove = req.params.checklistId;
+    await Card.findOneAndUpdate(
+      { _id: id },
+      {
+        $pull: { checklist: { value: checklistIdRemove } },
+      },
+      { new: true }
+    );
+    return res.status(200).json({ msg: "Xóa thành công." });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// @desc    Add Label Single Card By ID
+// @route   POST /api/cards/:id/label
+// @access  Private/User
+// @note    route parameters
+exports.addLabelTodoCard = asyncHandler(async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const updates = req.body;
     const card = await Card.findOneAndUpdate(
       { _id: id },
       {
-        $pull: { checklist: itemRemove },
+        $push: { label: updates },
       },
       { new: true }
     );
@@ -144,6 +165,9 @@ exports.removeCheckListTodoCard = asyncHandler(async (req, res, next) => {
     next(error);
   }
 });
+
+
+
 
 // @desc    Remove Card By ID
 // @route   DELETE /api/cards/:id

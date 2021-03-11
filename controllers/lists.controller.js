@@ -1,6 +1,7 @@
 const asyncHandler = require("../middlewares/async");
 const createError = require("http-errors");
 const List = require("../models/Lists");
+const Card = require("../models/Card");
 const moment = require("moment");
 
 // @des GET ALL LISTS
@@ -79,5 +80,40 @@ exports.updateSingleListById = asyncHandler(async (req, res, next) => {
   } catch (error) {
     next(error);
     return;
+  }
+});
+
+// @desc    Update CardID Single
+// @route   POST /api/lists/:id/cardId
+// @access  Private/User
+// @note    route parameters
+exports.addCardIdToList = asyncHandler(async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const result = await List.findOneAndUpdate({ _id: id }, { $push: { cards: req.body.value } }, { new: true });
+    res.json({ result });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// @desc    Remove Check List Single Card By ID
+// @route   DELETE /api/lists/:id/cardId/:cardId
+// @access  Private/User
+// @note    route parameters
+exports.removeCardIdToList = asyncHandler(async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const cardIdRemove = req.params.cardId;
+    await List.findOneAndUpdate(
+      { _id: id },
+      {
+        $pull: { cards: cardIdRemove },
+      },
+      { new: true }
+    );
+    return res.status(200).json({ msg: "Xóa thành công." });
+  } catch (error) {
+    next(error);
   }
 });

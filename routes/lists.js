@@ -1,5 +1,13 @@
 const express = require("express");
-const { createList, getAllLists, getListById, getListBySlug, updateSingleListById } = require("../controllers/lists.controller");
+const {
+  createList,
+  getAllLists,
+  getListById,
+  getListBySlug,
+  updateSingleListById,
+  addCardIdToList,
+  removeCardIdToList
+} = require("../controllers/lists.controller");
 
 const List = require("../models/Lists");
 const router = express.Router();
@@ -20,6 +28,14 @@ router
   .route("/:id")
   .get(getListById)
   .patch(updateSingleListById)
+
+router
+  .route("/:id/cardId")
+  .post(addCardIdToList)
+
+router
+  .route("/:id/cardId/:cardId")
+  .delete(removeCardIdToList)
 
 
 
