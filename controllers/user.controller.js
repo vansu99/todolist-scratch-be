@@ -43,11 +43,10 @@ exports.getUser = asyncHandler(async (req, res, next) => {
 // @route PUT /api/users/:id
 // @access admin
 exports.updateUser = asyncHandler(async (req, res, next) => {
-  const user = await User.findOneAndUpdate(
-    { role: "user", _id: req.params.id },
-    req.body,
-    { new: true, runValidators: true }
-  );
+  const user = await User.findOneAndUpdate({ role: "user", _id: req.params.id }, req.body, {
+    new: true,
+    runValidators: true,
+  });
 
   if (!user) {
     return next(new ErrorResponse("User not found", 404));
@@ -81,4 +80,17 @@ exports.deleteUser = asyncHandler(async (req, res, next) => {
     success: true,
     data: user,
   });
+});
+
+// @desc Search user
+// @route Search /api/users/search?username=
+// @access admin
+exports.searchUser = asyncHandler(async (req, res, next) => {
+  const { username = null } = req.query;
+  let query = {};
+  let regex = new RegExp(username, "i");
+  if (username !== null) query.username = regex;
+
+  const users = await User.find(query);
+  res.status(200).json({ users });
 });

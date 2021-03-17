@@ -58,7 +58,7 @@ exports.refreshToken = asyncHandler(async (req, res, next) => {
     const accessToken = await signAccessToken(userId);
     const refToken = await signRefreshToken(userId);
 
-    res.status(200).json({ accessToken, refToken });
+    res.status(200).json({ refToken });
   } catch (error) {
     next(error);
   }

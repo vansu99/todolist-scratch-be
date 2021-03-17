@@ -17,6 +17,11 @@ const UserSchema = new mongoose.Schema(
       default: "none",
     },
 
+    image: {
+      type: String,
+      default: "https://lh3.googleusercontent.com/proxy/94QobP-VYScYvkJabWPSRnk7JIQMfQy9Xa-YxuXCDCIJ-iDMWXTcrfFuRICLyc8t-WANAeWcF7r6rqz8iDt-ANAiVPqag4q_HMCSoiPz6y8IrI6ZAG6imr3vjgs"
+    },
+
     phone: {
       type: Number,
       minlength: [11, "Phone number requied at least 10 character"],
@@ -42,6 +47,7 @@ const UserSchema = new mongoose.Schema(
       minlength: [6, "Password requied at least 6 character"],
       select: false,
     },
+
     confirmPassword: {
       type: String,
       required: true,
@@ -67,8 +73,8 @@ UserSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-UserSchema.set('toJSON', {
-  transform: (doc, { __v, password, ...rest }, options) => rest
-})
+UserSchema.set("toJSON", {
+  transform: (doc, { __v, password, ...rest }, options) => rest,
+});
 
 module.exports = mongoose.model("User", UserSchema);
