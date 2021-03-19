@@ -21,10 +21,13 @@ const CardsSchema = new mongoose.Schema(
       trim: true,
       default: "",
     },
-    member: {
-      type: Array,
-      default: [],
-    },
+    member: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: "User",
+        default: [],
+      },
+    ],
     checklist: {
       type: Array,
       default: [],

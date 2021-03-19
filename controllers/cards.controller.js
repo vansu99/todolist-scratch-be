@@ -8,7 +8,7 @@ const moment = require("moment");
 // @access Private/User
 exports.getAllCards = asyncHandler(async (req, res, next) => {
   try {
-    const cards = await Card.find();
+    const cards = await Card.find().populate("member");
     if (!cards) {
       throw createError.NotFound("Cards not exist");
     } else {
@@ -166,8 +166,47 @@ exports.addLabelTodoCard = asyncHandler(async (req, res, next) => {
   }
 });
 
+// @desc    Add Member Single Card By ID
+// @route   POST /api/cards/:id/member
+// @access  Private/User
+// @note    route parameters
+exports.addMemberTodoCard = asyncHandler(async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const updates = req.body;
+    const card = await Card.findOneAndUpdate(
+      { _id: id },
+      {
+        $addToSet: { member: updates.value },
+      },
+      { new: true }
+    ).populate("member");
+    return res.status(201).json({ card });
+  } catch (error) {
+    next(error);
+  }
+});
 
-
+// @desc    Remove Member Single Card By ID
+// @route   DELETE /api/cards/:id/member/:memberId
+// @access  Private/User
+// @note    route parameters
+exports.removeMemberTodoCard = asyncHandler(async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const memberIdRemove = req.params.memberId;
+    await Card.findOneAndUpdate(
+      { _id: id },
+      {
+        $pull: { member: memberIdRemove },
+      },
+      { new: true }
+    );
+    return res.status(200).json({ msg: "Xóa thành công." });
+  } catch (error) {
+    next(error);
+  }
+});
 
 // @desc    Remove Card By ID
 // @route   DELETE /api/cards/:id

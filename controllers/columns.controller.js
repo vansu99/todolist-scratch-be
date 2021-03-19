@@ -38,9 +38,26 @@ exports.getColumnById = asyncHandler(async (req, res, next) => {
 // @access  Private/User
 exports.createColumn = asyncHandler(async (req, res, next) => {
   try {
-    const column = await Column.create({ ...req.body });
+    const column = await Column.create({
+      ...req.body,
+    });
     return res.status(201).json({ column });
   } catch (error) {
     next(error);
+  }
+});
+
+// @desc    Remove Column By ID
+// @route   DELETE /api/columns/:id
+// @access  Private/User
+// @note    route parameters
+exports.removeSingleColumnById = asyncHandler(async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    await Column.findByIdAndRemove(id);
+    res.status(200).json({ msg: "Xóa thành công" });
+  } catch (error) {
+    next(createError(400, "Invalid Column ID"));
+    return;
   }
 });

@@ -6,7 +6,8 @@ const {
   getListBySlug,
   updateSingleListById,
   addCardIdToList,
-  removeCardIdToList
+  removeCardIdToList,
+  removeSingleListById
 } = require("../controllers/lists.controller");
 
 const List = require("../models/Lists");
@@ -28,6 +29,7 @@ router
   .route("/:id")
   .get(getListById)
   .patch(updateSingleListById)
+  .delete(removeSingleListById)
 
 router
   .route("/:id/cardId")

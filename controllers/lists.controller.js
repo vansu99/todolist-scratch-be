@@ -83,6 +83,21 @@ exports.updateSingleListById = asyncHandler(async (req, res, next) => {
   }
 });
 
+// @desc    Remove List By ID
+// @route   DELETE /api/lists/:id
+// @access  Private/User
+// @note    route parameters
+exports.removeSingleListById = asyncHandler(async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    await List.findByIdAndRemove(id);
+    res.status(200).json({ msg: "Xóa thành công" });
+  } catch (error) {
+    next(createError(400, "Invalid List ID"));
+    return;
+  }
+});
+
 // @desc    Update CardID Single
 // @route   POST /api/lists/:id/cardId
 // @access  Private/User

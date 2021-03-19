@@ -12,6 +12,7 @@ const ListsSchema = new mongoose.Schema(
       {
         type: mongoose.Schema.ObjectId,
         ref: "Card",
+        default: [],
       },
     ],
     slug: { type: String, slug: "title", unique: true },
