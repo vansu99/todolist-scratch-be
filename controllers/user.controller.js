@@ -43,7 +43,7 @@ exports.getUser = asyncHandler(async (req, res, next) => {
 // @route PUT /api/users/:id
 // @access admin
 exports.updateUser = asyncHandler(async (req, res, next) => {
-  const user = await User.findOneAndUpdate({ role: "user", _id: req.params.id }, req.body, {
+  const user = await User.findOneAndUpdate({ _id: req.params.id }, req.body, {
     new: true,
     runValidators: true,
   });
@@ -51,17 +51,7 @@ exports.updateUser = asyncHandler(async (req, res, next) => {
   if (!user) {
     return next(new ErrorResponse("User not found", 404));
   }
-
-  // Only admin can set staff
-  if (req.user.role !== "admin") {
-    user.role = "user";
-    user.save();
-  }
-
-  res.status(200).json({
-    success: true,
-    data: user,
-  });
+  res.status(200).json({ user });
 });
 
 // @desc Delete user by ID
