@@ -48,7 +48,7 @@ exports.updateComment = asyncHandler(async (req, res, next) => {
 // @access  Private/User
 exports.likeComment = asyncHandler(async (req, res, next) => {
   try {
-    const comment = await Comments.find({ _id: req.params.id, likes: req.user.id });
+    const comment = await Comments.find({ _id: req.params.id, likes: req.user._id });
     if (comment.length > 0) return res.status(400).json({ msg: "Bạn đã like nhận xét này." });
     const likeComment = await Comments.findOneAndUpdate(
       { _id: req.params.id },
