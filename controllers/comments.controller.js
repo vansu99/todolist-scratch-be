@@ -50,15 +50,13 @@ exports.likeComment = asyncHandler(async (req, res, next) => {
   try {
     const comment = await Comments.find({ _id: req.params.id, likes: req.user.id });
     if (comment.length > 0) return res.status(400).json({ msg: "Bạn đã like nhận xét này." });
-
     const likeComment = await Comments.findOneAndUpdate(
       { _id: req.params.id },
       {
-        $push: { likes: req.user.id },
+        $push: { likes: req.user._id },
       },
       { new: true }
     );
-
     res.status(200).json({ likeComment });
   } catch (error) {
     next(error);
