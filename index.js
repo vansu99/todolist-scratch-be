@@ -20,6 +20,8 @@ const labelsRoutes = require("./routes/labels");
 const listsRoutes = require("./routes/lists");
 const columnsRoutes = require("./routes/columns");
 const boardsRoutes = require("./routes/boards");
+const commentsRoutes = require("./routes/comments");
+
 
 const app = express();
 const server = require("http").Server(app);
@@ -52,6 +54,7 @@ app.use(versionApi("columns"), columnsRoutes);
 app.use(versionApi("users"), userRoutes);
 app.use(versionApi("role"), roleRoutes);
 app.use(versionApi("boards"), boardsRoutes);
+app.use(versionApi("comments"), commentsRoutes);
 
 app.use(errorHandler);
 

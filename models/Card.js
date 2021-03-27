@@ -40,6 +40,13 @@ const CardsSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+    comments: [
+      {
+        type: mongoose.Types.ObjectId,
+        ref: "Comment",
+        default: [],
+      },
+    ],
     slug: { type: String, slug: "title", unique: true },
   },
   { toJSON: { virtuals: true }, toObject: { virtuals: true }, timestamps: true }

@@ -8,7 +8,15 @@ const moment = require("moment");
 // @access Private/User
 exports.getAllCards = asyncHandler(async (req, res, next) => {
   try {
-    const cards = await Card.find().populate("member");
+    const cards = await Card.find()
+      .populate("member")
+      .populate({
+        path: "comments",
+        populate: {
+          path: "user",
+          select: "-password",
+        },
+      });
     if (!cards) {
       throw createError.NotFound("Cards not exist");
     } else {
