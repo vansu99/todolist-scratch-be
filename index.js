@@ -22,12 +22,11 @@ const columnsRoutes = require("./routes/columns");
 const boardsRoutes = require("./routes/boards");
 const commentsRoutes = require("./routes/comments");
 
-
 const app = express();
 const server = require("http").Server(app);
 
 app.use(express.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(
   cors({
