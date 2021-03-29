@@ -2,6 +2,7 @@ const asyncHandler = require("../middlewares/async");
 const createError = require("http-errors");
 const Card = require("../models/Card");
 const moment = require("moment");
+const Boards = require("../models/Boards");
 
 // @des GET ALL CARDS
 // @route GET /api/cards
@@ -32,6 +33,9 @@ exports.getAllCards = asyncHandler(async (req, res, next) => {
 // @access  Private/User
 exports.createCards = asyncHandler(async (req, res, next) => {
   try {
+    const boardId = req.body.boardId;
+    const board = await Boards.findOne({ _id: boardId, userId: req.user });
+    if(!board) return res.status(404).send();
     const card = await Card.create({ ...req.body });
     return res.status(201).json({ card });
   } catch (error) {
@@ -64,7 +68,7 @@ exports.getCardById = asyncHandler(async (req, res, next) => {
   try {
     const card = await Card.findById(id);
     if (!card) {
-      throw createError.NotFound("Card of slug not exist");
+      throw createError.NotFound("Card not exist");
     } else {
       return res.status(200).json({ card });
     }

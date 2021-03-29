@@ -35,7 +35,7 @@ exports.createComment = asyncHandler(async (req, res, next) => {
 exports.updateComment = asyncHandler(async (req, res, next) => {
   try {
     const { content } = req.body;
-    const comment = await Comments.findOneAndUpdate({ _id: req.params.id }, { content }, { new: true });
+    const comment = await Comments.findOneAndUpdate({ _id: req.params.id, user: req.user }, { content }, { new: true });
 
     res.status(200).json({ comment, msg: "Cập nhật thành công." });
   } catch (error) {
@@ -48,12 +48,13 @@ exports.updateComment = asyncHandler(async (req, res, next) => {
 // @access  Private/User
 exports.likeComment = asyncHandler(async (req, res, next) => {
   try {
-    const comment = await Comments.find({ _id: req.params.id, likes: req.user._id });
+    const { user } = req.body;
+    const comment = await Comments.find({ _id: req.params.id, likes: user._id });
     if (comment.length > 0) return res.status(400).json({ msg: "Bạn đã like nhận xét này." });
     const likeComment = await Comments.findOneAndUpdate(
       { _id: req.params.id },
       {
-        $push: { likes: req.user._id },
+        $push: { likes: user._id },
       },
       { new: true }
     );
@@ -68,10 +69,11 @@ exports.likeComment = asyncHandler(async (req, res, next) => {
 // @access  Private/User
 exports.unLikeComment = asyncHandler(async (req, res, next) => {
   try {
+    const { user } = req.body;
     const unLikeComment = await Comments.findOneAndUpdate(
       { _id: req.params.id },
       {
-        $pull: { likes: req.user.id },
+        $pull: { likes: user._id },
       },
       { new: true }
     );

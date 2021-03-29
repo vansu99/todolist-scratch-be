@@ -5,6 +5,7 @@ const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const helmet = require("helmet");
 const errorHandler = require("./middlewares/error"); // Handler Errors
 const DBConnection = require("./configs/db");
 const config = require("./configs/config");
@@ -25,6 +26,7 @@ const commentsRoutes = require("./routes/comments");
 const app = express();
 const server = require("http").Server(app);
 
+app.use(helmet());
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -62,7 +64,5 @@ module.exports = server.listen(config.PORT, () => {
 });
 
 process.on("unhandledRejection", (err, next) => {
-  // next(createError.NotFound("This route does not exist"));
-  // Close server & exit process
   server.close(() => process.exit(1));
 });

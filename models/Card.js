@@ -12,6 +12,10 @@ const CardsSchema = new mongoose.Schema(
       type: mongoose.Schema.ObjectId,
       ref: "List",
     },
+    boardId: {
+      type: mongoose.Schema.ObjectId,
+      ref: "Board",
+    },
     userId: {
       type: mongoose.Schema.ObjectId,
       ref: "User",

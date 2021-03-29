@@ -7,6 +7,11 @@ const LabelsSchema = new mongoose.Schema(
       ref: "List",
       default: "",
     },
+    boardId: {
+      type: mongoose.Schema.ObjectId,
+      ref: "Board",
+      default: "",
+    },
   },
   { toJSON: { virtuals: true }, toObject: { virtuals: true }, timestamps: true }
 );

@@ -10,14 +10,12 @@ exports.protect = asyncHandler(async (req, res, next) => {
   const authHeader = req.headers["authorization"];
   const bearerToken = authHeader.split(" ");
   const token = bearerToken[1];
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, payload) => {
-    if (err) {
-      const message = err.name === "JsonWebTokenError" ? "Unauthorized" : err.message;
-      return next(createError.Unauthorized(message));
-    }
-    req.payload = payload;
-    next();
-  });
+  const verified = jwt.verify(token, process.env.JWT_SECRET);
+  if (!verified) {
+    return res.status(401).json({ msg: "Token verification failed, access denied." });
+  }
+  req.user = verified.id;
+  next();
 });
 
 // Grant access to specific roles

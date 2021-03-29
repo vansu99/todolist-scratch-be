@@ -5,12 +5,12 @@ module.exports = {
   signAccessToken: (userId) => {
     return new Promise((resolve, reject) => {
       const payload = {};
-      const secret = process.env.ACCESS_TOKEN_SECRET;
+      const secret = process.env.JWT_SECRET;
       const options = {
         expiresIn: "10h",
         audience: userId,
       };
-      JWT.sign(payload, secret, options, (err, token) => {
+      JWT.sign({ id: userId }, secret, options, (err, token) => {
         if (err) {
           reject(createError.InternalServerError());
           return;

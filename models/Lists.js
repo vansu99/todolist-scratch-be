@@ -8,6 +8,10 @@ const ListsSchema = new mongoose.Schema(
       trim: true,
       required: [true, "Title lists is requied"],
     },
+    boardId: {
+      type: mongoose.Schema.ObjectId,
+      ref: "Board",
+    },
     cards: [
       {
         type: mongoose.Schema.ObjectId,

@@ -19,7 +19,8 @@ const UserSchema = new mongoose.Schema(
 
     image: {
       type: String,
-      default: "https://lh3.googleusercontent.com/proxy/94QobP-VYScYvkJabWPSRnk7JIQMfQy9Xa-YxuXCDCIJ-iDMWXTcrfFuRICLyc8t-WANAeWcF7r6rqz8iDt-ANAiVPqag4q_HMCSoiPz6y8IrI6ZAG6imr3vjgs"
+      default:
+        "https://lh3.googleusercontent.com/proxy/94QobP-VYScYvkJabWPSRnk7JIQMfQy9Xa-YxuXCDCIJ-iDMWXTcrfFuRICLyc8t-WANAeWcF7r6rqz8iDt-ANAiVPqag4q_HMCSoiPz6y8IrI6ZAG6imr3vjgs",
     },
 
     phone: {

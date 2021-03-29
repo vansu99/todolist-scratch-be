@@ -33,10 +33,11 @@ exports.login = asyncHandler(async (req, res, next) => {
   try {
     const result = await loginSchema.validateAsync(req.body);
     const user = await User.findOne({ email: result.email }).select("+password");
-    if (!user) throw createError.NotFound("User not registered");
+
+    if (!user) return res.status(400).json({ msg: "Tài khoản không tồn tại" });
 
     const isMatch = await user.matchPassword(result.password);
-    if (!isMatch) throw createError.Unauthorized("Username/Password is not valid");
+    if (!isMatch) return res.status(400).json({ msg: "Tài khoản/Mật khẩu không đúng" });
 
     const accessToken = await signAccessToken(user.id);
     const refreshToken = await signRefreshToken(user.id);
@@ -80,10 +81,10 @@ exports.logout = asyncHandler(async (req, res, next) => {
 // @route   POST /api/v1/auth/me
 // @access  Private
 exports.getMe = asyncHandler(async (req, res, next) => {
-  console.log(req.user);
+  //console.log(req.user);
   try {
     const user = await User.findById(req.user.id);
-    res.status(200).json({ success: true, data: user });
+    res.status(200).json({ user });
   } catch (error) {
     next(error);
   }

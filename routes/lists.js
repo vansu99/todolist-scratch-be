@@ -4,6 +4,7 @@ const {
   getAllLists,
   getListById,
   getListBySlug,
+  getCardByListId,
   updateSingleListById,
   addCardIdToList,
   removeCardIdToList,
@@ -32,11 +33,12 @@ router
   .delete(removeSingleListById)
 
 router
-  .route("/:id/cardId")
+  .route("/:id/cards")
   .post(addCardIdToList)
+  .get(getCardByListId)
 
 router
-  .route("/:id/cardId/:cardId")
+  .route("/:id/cards/:cardId")
   .delete(removeCardIdToList)
 
 

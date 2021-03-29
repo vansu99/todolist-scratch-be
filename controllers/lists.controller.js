@@ -3,10 +3,12 @@ const createError = require("http-errors");
 const List = require("../models/Lists");
 const Card = require("../models/Card");
 const moment = require("moment");
+const Boards = require("../models/Boards");
 
 // @des GET ALL LISTS
 // @route GET /api/lists
 // @access Private/User
+// tạm không dùng
 exports.getAllLists = asyncHandler(async (req, res, next) => {
   try {
     const lists = await List.find();
@@ -25,6 +27,9 @@ exports.getAllLists = asyncHandler(async (req, res, next) => {
 // @access  Private/User
 exports.createList = asyncHandler(async (req, res, next) => {
   try {
+    const boardId = req.body.boardId;
+    const board = await Boards.findOne({ _id: boardId, userId: req.user });
+    if(!board) return res.status(404).send();
     const list = await List.create({ ...req.body });
     return res.status(201).json({ list });
   } catch (error) {
@@ -66,6 +71,22 @@ exports.getListById = asyncHandler(async (req, res, next) => {
   }
 });
 
+// @desc    Get Card By ListID
+// @route   GET /api/lists/:id/cards
+// @access  Private/User
+exports.getCardByListId = asyncHandler(async (req, res, next) => {
+  const id = req.params.id;
+  try {
+    const list = await List.findById(id);
+    if (!list) throw createError(404, "list of id not exist");
+    const card = await Card.find({ list: id });
+    return res.status(200).json({ card });
+
+  } catch (error) {
+    next(error);
+  }
+});
+
 // @desc    Update Single List By ID
 // @route   PATCH /api/lists/:id
 // @access  Private/User
@@ -91,6 +112,10 @@ exports.removeSingleListById = asyncHandler(async (req, res, next) => {
   try {
     const id = req.params.id;
     await List.findByIdAndRemove(id);
+    const cards = await Card.find({ list: id });
+    cards.forEach(async card => (
+      await Card.deleteOne({ _id: card._id })
+    ));
     res.status(200).json({ msg: "Xóa thành công" });
   } catch (error) {
     next(createError(400, "Invalid List ID"));
