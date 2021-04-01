@@ -24,8 +24,11 @@ router
   .post(createBoard)
 
 router
+  .route("/ids")
+  .post(getBoardById)
+
+router
   .route("/:id")
-  .get(getBoardById)
   .delete(removeSingleBoardById)
 
 router

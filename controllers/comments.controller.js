@@ -7,11 +7,14 @@ const asyncHandler = require("../middlewares/async");
 // @access  Private/User
 exports.createComment = asyncHandler(async (req, res, next) => {
   try {
-    const { cardId, content, tag, user } = req.body;
+    const { cardId, content, tag, reply, cardUserId } = req.body;
     const newComment = new Comments({
-      user,
+      user: req.user,
       content,
       tag,
+      reply,
+      cardUserId,
+      cardId
     });
     await Card.findOneAndUpdate(
       { _id: cardId },

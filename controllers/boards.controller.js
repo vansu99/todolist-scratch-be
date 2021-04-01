@@ -24,9 +24,9 @@ exports.getAllBoards = asyncHandler(async (req, res, next) => {
 // @route   GET /api/boards/:id
 // @access  Private/User
 exports.getBoardById = asyncHandler(async (req, res, next) => {
-  const _id = req.params.id;
+  const { ids } = req.body;
   try {
-    const board = await Board.findOne({ _id, userId: req.user });
+    const board = await Board.find({ _id: { $in: ids } });
     if (!board) {
       return res.status(404).json({ msg: "Board không tồn tại." });
     } else {
@@ -41,6 +41,7 @@ exports.getBoardById = asyncHandler(async (req, res, next) => {
 // @route   POST /api/boards
 // @access  Private/User
 exports.createBoard = asyncHandler(async (req, res, next) => {
+  console.log("action create");
   try {
     const board = await Board.create({
       ...req.body,

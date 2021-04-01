@@ -54,6 +54,25 @@ const UserSchema = new mongoose.Schema(
       required: true,
       select: false,
     },
+
+    completed: {
+      type: Number,
+      default: 0,
+    },
+
+    failed: {
+      type: Number,
+      default: 0,
+    },
+
+    boardId: [
+      {
+        type: mongoose.Types.ObjectId,
+        ref: "Board",
+        default: [],
+      },
+    ],
+
     resetTokenExpiration: String,
     passwordResetExpires: Date,
   },

@@ -6,6 +6,9 @@ const CommentsSchema = new mongoose.Schema(
       type: String,
     },
     tag: Object,
+    reply: {
+      type: mongoose.Types.ObjectId,
+    },
     likes: [
       {
         type: mongoose.Types.ObjectId,
@@ -16,6 +19,8 @@ const CommentsSchema = new mongoose.Schema(
       type: mongoose.Types.ObjectId,
       ref: "User",
     },
+    cardId: mongoose.Types.ObjectId,
+    cardUserId: mongoose.Types.ObjectId
   },
   { toJSON: { virtuals: true }, toObject: { virtuals: true }, timestamps: true }
 );

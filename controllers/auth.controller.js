@@ -83,7 +83,7 @@ exports.logout = asyncHandler(async (req, res, next) => {
 exports.getMe = asyncHandler(async (req, res, next) => {
   //console.log(req.user);
   try {
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(req.user);
     res.status(200).json({ user });
   } catch (error) {
     next(error);
