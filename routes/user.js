@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const { searchUser, updateUser, getUser, getBoardByUserId, addBoardId } = require("../controllers/user.controller");
+const { searchUser, updateUser, getUser, getBoardByUserId, addBoardId, getCompletedByUserId } = require("../controllers/user.controller");
 const { protect } = require("../middlewares/auth");
 
 router.use(protect);
@@ -16,6 +16,11 @@ router
   .get(getBoardByUserId)
   .post(addBoardId)
 
-router.get("/search", searchUser);
+router
+  .route("/:id/completed")
+  .get(getCompletedByUserId)
+
+router
+  .get("/search/by", searchUser)
 
 module.exports = router;

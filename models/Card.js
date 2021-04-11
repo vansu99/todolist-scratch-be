@@ -51,6 +51,10 @@ const CardsSchema = new mongoose.Schema(
         default: [],
       },
     ],
+    completed: {
+      type: Boolean,
+      default: false
+    },
     slug: { type: String, slug: "title", unique: true },
   },
   { toJSON: { virtuals: true }, toObject: { virtuals: true }, timestamps: true }

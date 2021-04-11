@@ -8,7 +8,19 @@ const CompletedTodoSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    cardId: [
+    boardId: {
+      type: mongoose.Schema.ObjectId,
+      ref: "Board",
+      default: "",
+    },
+    cardCompleted: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: "Card",
+        default: [],
+      },
+    ],
+    cardFailed: [
       {
         type: mongoose.Schema.ObjectId,
         ref: "Card",

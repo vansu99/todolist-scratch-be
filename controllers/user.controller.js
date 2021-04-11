@@ -3,6 +3,7 @@ const asyncHandler = require("../middlewares/async");
 const ErrorResponse = require("../utils/errorResponse");
 const User = require("../models/User");
 const Board = require("../models/Boards");
+const Completed = require("../models/Completed");
 
 // @desc    Get All Users
 // @route   GET /api/users
@@ -108,6 +109,17 @@ exports.addBoardId = asyncHandler(async (req, res, next) => {
       { new: true }
     );
     return res.status(201).json({ user });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Get Completed By UserId
+exports.getCompletedByUserId = asyncHandler(async (req, res, next) => {
+  const _id = req.params.id;
+  try {
+    const completed = await Completed.find({ completed: _id });
+    return res.status(200).json({ completed });
   } catch (error) {
     next(error);
   }

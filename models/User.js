@@ -54,17 +54,6 @@ const UserSchema = new mongoose.Schema(
       required: true,
       select: false,
     },
-
-    completed: {
-      type: Number,
-      default: 0,
-    },
-
-    failed: {
-      type: Number,
-      default: 0,
-    },
-
     boardId: [
       {
         type: mongoose.Types.ObjectId,
@@ -72,7 +61,13 @@ const UserSchema = new mongoose.Schema(
         default: [],
       },
     ],
-
+    completed: [
+      {
+        type: mongoose.Types.ObjectId,
+        ref: "completedTodo",
+        default: [],
+      },
+    ],
     resetTokenExpiration: String,
     passwordResetExpires: Date,
   },
