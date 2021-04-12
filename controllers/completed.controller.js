@@ -20,7 +20,6 @@ exports.getCompletedTodoById = asyncHandler(async (req, res, next) => {
 // @desc    Add Completed Single Card By ID
 // @route   POST /api/reports
 // @access  Private/User
-// @note    route parameters
 exports.createCompletedTodo = asyncHandler(async (req, res, next) => {
   try {
     const boardId = req.body.boardId;
@@ -38,15 +37,13 @@ exports.createCompletedTodo = asyncHandler(async (req, res, next) => {
 // @desc    Add Completed into CardCompleted
 // @route   POST /api/reports/:id/completed
 // @access  Private/User
-// @note    route parameters
 exports.addCompletedTodo = asyncHandler(async (req, res, next) => {
   try {
-    const id = req.params.id;
-    const updates = req.body.value;
+    const { boardId, value } = req.body;
     const completed = await CompletedTodo.findOneAndUpdate(
-      { _id: id },
+      { boardId: boardId },
       {
-        $addToSet: { cardCompleted: updates },
+        $addToSet: { cardCompleted: value },
       },
       { new: true }
     );
@@ -59,15 +56,13 @@ exports.addCompletedTodo = asyncHandler(async (req, res, next) => {
 // @desc    Add Failed into CardCompleted
 // @route   POST /api/reports/:id/failed
 // @access  Private/User
-// @note    route parameters
 exports.addFailedTodo = asyncHandler(async (req, res, next) => {
   try {
-    const id = req.params.id;
-    const updates = req.body;
+    const { boardId, value } = req.body;
     const failedTodo = await CompletedTodo.findOneAndUpdate(
-      { _id: id },
+      { boardId: boardId },
       {
-        $addToSet: { cardFailed: updates },
+        $addToSet: { cardFailed: value },
       },
       { new: true }
     );
@@ -78,16 +73,17 @@ exports.addFailedTodo = asyncHandler(async (req, res, next) => {
 });
 
 // @desc    Remove Failed into CardCompleted
-// @route   POST /api/reports/:id/failed
+// @route   POST /api/reports/failed/:failedId
 // @access  Private/User
 exports.removeCompletedTodoCard = asyncHandler(async (req, res, next) => {
   try {
-    const id = req.params.id;
-    const checklistIdRemove = req.params.checklistId;
-    await Card.findOneAndUpdate(
-      { _id: id },
+    const { boardId } = req.body;
+    const failedTodoRemove = req.params.failedId;
+    console.log(failedTodoRemove);
+    await CompletedTodo.findOneAndUpdate(
+      { boardId: boardId },
       {
-        $pull: { checklist: { value: checklistIdRemove } },
+        $pull: { cardFailed: failedTodoRemove },
       },
       { new: true }
     );
