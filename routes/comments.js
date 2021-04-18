@@ -3,7 +3,8 @@ const {
   createComment,
   updateComment,
   likeComment,
-  unLikeComment
+  unLikeComment,
+  removeComment
 } = require("../controllers/comments.controller");
 
 const router = express.Router();
@@ -18,6 +19,7 @@ router
 router
   .route("/:id")
   .patch(updateComment)
+  .delete(removeComment)
 
 
 router
@@ -27,6 +29,7 @@ router
 router
   .route("/:id/unlike")
   .patch(unLikeComment)
+
 
 
 module.exports = router;

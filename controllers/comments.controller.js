@@ -14,7 +14,7 @@ exports.createComment = asyncHandler(async (req, res, next) => {
       tag,
       reply,
       cardUserId,
-      cardId
+      cardId,
     });
     await Card.findOneAndUpdate(
       { _id: cardId },
@@ -82,6 +82,22 @@ exports.unLikeComment = asyncHandler(async (req, res, next) => {
     );
 
     res.status(200).json({ unLikeComment });
+  } catch (error) {
+    next(error);
+  }
+});
+
+exports.removeComment = asyncHandler(async (req, res, next) => {
+  try {
+    const removeComment = await Comments.findOneAndRemove({ _id: req.params.id, $or: [{ user: req.user }] });
+    await Card.findOneAndUpdate(
+      { _id: removeComment.cardId },
+      {
+        $pull: { comments: req.params.id },
+      }
+    );
+
+    res.status(200).json({ msg: "Xóa thành công." });
   } catch (error) {
     next(error);
   }
