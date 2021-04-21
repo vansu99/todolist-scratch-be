@@ -9,6 +9,8 @@ const helmet = require("helmet");
 const errorHandler = require("./middlewares/error"); // Handler Errors
 const DBConnection = require("./configs/db");
 const config = require("./configs/config");
+const SocketServer = require("./socketServer");
+const jwt = require("jsonwebtoken");
 
 DBConnection();
 
@@ -23,9 +25,9 @@ const columnsRoutes = require("./routes/columns");
 const boardsRoutes = require("./routes/boards");
 const commentsRoutes = require("./routes/comments");
 const completedRoutes = require("./routes/completedTodo");
+const notificationRoutes = require("./routes/notification");
 
 const app = express();
-const server = require("http").Server(app);
 
 app.use(helmet());
 app.use(express.json());
@@ -38,12 +40,42 @@ app.use(
     allowedHeaders: "Content-Type, Authorization, Origin, X-Requested-With, Accept",
   })
 );
-
 app.use(cookieParser());
 
 if (config.ENV === "development") {
   app.use(morgan("dev"));
 }
+
+// Socket
+const http = require("http").createServer(app);
+const io = require("socket.io")(http, {
+  cors: {
+    origin: "http://localhost:8080",
+    methods: ["GET", "POST"],
+  },
+});
+app.set("socketio", io);
+
+io.use((socket, next) => {
+  const token = socket.handshake.query && socket.handshake.query.token;
+  if (token) {
+    try {
+      const user = jwt.decode(token, process.env.JWT_SECRET);
+      if (!user) {
+        return next(new Error("Not authorized."));
+      }
+      socket.user = user;
+      return next();
+    } catch (err) {
+      next(err);
+    }
+  } else {
+    return next(new Error("Not authorized."));
+  }
+}).on("connection", (socket) => {
+  socket.join(socket.user.id);
+  //SocketServer(socket);
+});
 
 // Moute routers
 const versionApi = (routeName) => `/api/${routeName}`;
@@ -58,14 +90,14 @@ app.use(versionApi("role"), roleRoutes);
 app.use(versionApi("boards"), boardsRoutes);
 app.use(versionApi("comments"), commentsRoutes);
 app.use(versionApi("reports"), completedRoutes);
-
+app.use(versionApi("notification"), notificationRoutes);
 
 app.use(errorHandler);
 
-module.exports = server.listen(config.PORT, () => {
+module.exports = http.listen(config.PORT, () => {
   console.log(`Server running in ${config.ENV} mode on port ${config.PORT}`);
 });
 
 process.on("unhandledRejection", (err, next) => {
-  server.close(() => process.exit(1));
+  http.close(() => process.exit(1));
 });

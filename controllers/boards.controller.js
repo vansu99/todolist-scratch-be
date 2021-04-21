@@ -70,8 +70,8 @@ exports.addColumnIdToBoard = asyncHandler(async (req, res, next) => {
 exports.getListByBoardId = asyncHandler(async (req, res, next) => {
   const _id = req.params.id;
   try {
-    const board = await Board.findOne({ _id, userId: req.user });
-    if (!board) return res.status(404).json({ msg: "Board không tồn tại" });
+    // const board = await Board.findOne({ _id, userId: req.user });
+    // if (!board) return res.status(404).json({ msg: "Board không tồn tại" });
 
     const lists = await Lists.find({ boardId: _id });
     return res.status(200).json({ lists });
@@ -84,8 +84,8 @@ exports.getListByBoardId = asyncHandler(async (req, res, next) => {
 exports.getCardByBoardId = asyncHandler(async (req, res, next) => {
   const _id = req.params.id;
   try {
-    const board = await Board.findOne({ _id, userId: req.user });
-    if (!board) return res.status(404).json({ msg: "Board không tồn tại" });
+    // const board = await Board.findOne({ _id, userId: req.user });
+    // if (!board) return res.status(404).json({ msg: "Board không tồn tại" });
 
     const cards = await Cards.find({ boardId: _id })
       .populate("member")
@@ -106,8 +106,8 @@ exports.getCardByBoardId = asyncHandler(async (req, res, next) => {
 exports.getColumnByBoardId = asyncHandler(async (req, res, next) => {
   const _id = req.params.id;
   try {
-    const board = await Board.findOne({ _id, userId: req.user });
-    if (!board) return res.status(404).json({ msg: "Board không tồn tại" });
+    // const board = await Board.findOne({ _id, userId: req.user });
+    // if (!board) return res.status(404).json({ msg: "Board không tồn tại" });
 
     const columns = await Columns.find({ boardId: _id });
     return res.status(200).json({ columns });

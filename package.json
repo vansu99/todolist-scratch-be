@@ -25,6 +25,7 @@
     "mongoose-slug-generator": "^1.0.4",
     "morgan": "^1.10.0",
     "nodemon": "^2.0.6",
+    "socket.io": "^4.0.1",
     "validator": "^13.5.2"
   }
 }

@@ -1,6 +1,8 @@
 const Comments = require("../models/Comment");
+const Notification = require("../models/Notification");
 const Card = require("../models/Card");
 const asyncHandler = require("../middlewares/async");
+const socketHandler = require("../socketServer");
 
 // @desc    Create Comment
 // @route   POST /api/comments
@@ -61,6 +63,27 @@ exports.likeComment = asyncHandler(async (req, res, next) => {
       },
       { new: true }
     );
+    const cardId = likeComment.cardId;
+    const notification = new Notification({
+      sender: user._id,
+      receiver: likeComment.user,
+      notificationType: "like",
+      date: Date.now(),
+      notificationData: {
+        cardId,
+      },
+    });
+    await notification.save();
+
+    socketHandler.sendNotification(req, {
+      ...notification.toObject(),
+      sender: {
+        _id: user._id,
+        username: user.username,
+        avatar: user.image,
+      },
+    });
+
     res.status(200).json({ likeComment });
   } catch (error) {
     next(error);
