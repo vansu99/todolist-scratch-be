@@ -3,13 +3,20 @@ const Notification = require("../models/Notification");
 const Card = require("../models/Card");
 const asyncHandler = require("../middlewares/async");
 const socketHandler = require("../socketServer");
+const { sendCommentNotification } = require("../utils/controllerUtils");
 
 // @desc    Create Comment
 // @route   POST /api/comments
 // @access  Private/User
 exports.createComment = asyncHandler(async (req, res, next) => {
+  const { cardId, content, tag, reply, cardUserId } = req.body;
+  let card = undefined;
+  const user = res.locals.users;
   try {
-    const { cardId, content, tag, reply, cardUserId } = req.body;
+    if (!content) {
+      return res.status(400).send({ error: "Please provide a message with your comment." });
+    }
+
     const newComment = new Comments({
       user: req.user,
       content,
@@ -18,7 +25,7 @@ exports.createComment = asyncHandler(async (req, res, next) => {
       cardUserId,
       cardId,
     });
-    await Card.findOneAndUpdate(
+    card = await Card.findOneAndUpdate(
       { _id: cardId },
       {
         $push: {
@@ -32,6 +39,13 @@ exports.createComment = asyncHandler(async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+
+  // try {
+  //   // sending comment notification
+  //   sendCommentNotification(req, newComment.tag, card.userId, content, cardId);
+  // } catch (error) {
+  //   next(error);
+  // }
 });
 
 // @desc    Update Comment
@@ -73,8 +87,8 @@ exports.likeComment = asyncHandler(async (req, res, next) => {
         cardId,
       },
     });
-    await notification.save();
 
+    await notification.save();
     socketHandler.sendNotification(req, {
       ...notification.toObject(),
       sender: {
@@ -82,9 +96,10 @@ exports.likeComment = asyncHandler(async (req, res, next) => {
         username: user.username,
         avatar: user.image,
       },
+      receiver: likeComment.user
     });
 
-    res.status(200).json({ likeComment });
+    return res.status(200).json({ likeComment });
   } catch (error) {
     next(error);
   }

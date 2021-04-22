@@ -17,7 +17,6 @@ DBConnection();
 // Route files
 const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/user");
-const roleRoutes = require("./routes/staff");
 const cardsRoutes = require("./routes/cards");
 const labelsRoutes = require("./routes/labels");
 const listsRoutes = require("./routes/lists");
@@ -86,7 +85,6 @@ app.use(versionApi("labels"), labelsRoutes);
 app.use(versionApi("lists"), listsRoutes);
 app.use(versionApi("columns"), columnsRoutes);
 app.use(versionApi("users"), userRoutes);
-app.use(versionApi("role"), roleRoutes);
 app.use(versionApi("boards"), boardsRoutes);
 app.use(versionApi("comments"), commentsRoutes);
 app.use(versionApi("reports"), completedRoutes);

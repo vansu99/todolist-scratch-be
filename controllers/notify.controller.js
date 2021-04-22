@@ -40,7 +40,7 @@ exports.retrieveNotifications = asyncHandler(async (req, res, next) => {
           date: true,
           notificationData: true,
           "sender.username": true,
-          "sender.avatar": true,
+          "sender.image": true,
           "sender._id": true,
           "receiver._id": true,
         },
