@@ -81,7 +81,6 @@ exports.logout = asyncHandler(async (req, res, next) => {
 // @route   POST /api/v1/auth/me
 // @access  Private
 exports.getMe = asyncHandler(async (req, res, next) => {
-  //console.log(req.user);
   try {
     const user = await User.findById(req.user);
     res.status(200).json({ user });

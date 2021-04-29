@@ -2,16 +2,41 @@ const CompletedTodo = require("../models/Completed");
 const Card = require("../models/Card");
 const asyncHandler = require("../middlewares/async");
 
+// @desc    GET All Report TODO
+// @route   GET /api/reports/
+// @access  Private/User
+exports.getAllReportTodo = asyncHandler(async (req, res, next) => {
+  try {
+    const reports = await CompletedTodo.find({ userId: req.user }).populate("boardId");
+    return res.status(200).json({ reports });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // @desc    GET Single Completed TODO By ID
 // @route   POST /api/reports/:id
 // @access  Private/User
-exports.getCompletedTodoById = asyncHandler(async (req, res, next) => {
+exports.getCompletedTodoByBoardId = asyncHandler(async (req, res, next) => {
   try {
     const { boardId } = req.body;
-    const completedTodo = await CompletedTodo.find({ userId: req.user });
+    const completedTodo = await CompletedTodo.findOne({ userId: req.user, boardId: boardId });
     const cards = await Card.find({});
     const totalCards = cards.filter((card) => boardId === String(card.boardId)).length;
     return res.status(200).json({ completedTodo, totalCards });
+  } catch (error) {
+    next(error);
+  }
+});
+
+exports.getCompletedTodoById = asyncHandler(async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const report = await CompletedTodo.find({ _id: id, userId: req.user });
+    const boardID = report[0].boardId;
+    const cards = await Card.find({});
+    const totalCards = cards.filter((card) => String(boardID) === String(card.boardId)).length;
+    return res.status(200).json({ report, totalCards });
   } catch (error) {
     next(error);
   }

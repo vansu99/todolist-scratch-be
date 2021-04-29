@@ -1,7 +1,9 @@
 const express = require("express");
 const {
   removeCompletedTodoCard,
+  getAllReportTodo,
   getCompletedTodoById,
+  getCompletedTodoByBoardId,
   createCompletedTodo,
   addCompletedTodo,
   addFailedTodo,
@@ -12,9 +14,14 @@ const { protect } = require("../middlewares/auth");
 
 router.use(protect);
 
-router.route("/").post(getCompletedTodoById).post(createCompletedTodo);
+router.route("/")
+  .get(getAllReportTodo)
+  .post(createCompletedTodo)
 
-router.route("/:id");
+router.route("/board").post(getCompletedTodoByBoardId);
+
+router.route("/:id")
+  .get(getCompletedTodoById)
 
 router.route("/completed").patch(addCompletedTodo);
 
