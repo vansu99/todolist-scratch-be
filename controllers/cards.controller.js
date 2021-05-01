@@ -35,7 +35,7 @@ exports.createCards = asyncHandler(async (req, res, next) => {
   try {
     const boardId = req.body.boardId;
     const board = await Boards.findOne({ _id: boardId, userId: req.user });
-    if(!board) return res.status(404).send();
+    if (!board) return res.status(404).send();
     const card = await Card.create({ ...req.body });
     return res.status(201).json({ card });
   } catch (error) {
@@ -173,6 +173,27 @@ exports.addLabelTodoCard = asyncHandler(async (req, res, next) => {
       { new: true }
     );
     return res.status(201).json({ card });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// @desc    Remove Label Single Card By ID
+// @route   POST /api/cards/:id/label/:labelId
+// @access  Private/User
+// @note    route parameters
+exports.removeLabelTodoCard = asyncHandler(async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const labelIdRemove = req.params.labelId;
+    await Card.findOneAndUpdate(
+      { _id: id },
+      {
+        $pull: { label: { value: labelIdRemove } },
+      },
+      { new: true }
+    );
+    return res.status(200).json({ msg: "Xóa thành công" });
   } catch (error) {
     next(error);
   }

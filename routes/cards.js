@@ -9,6 +9,7 @@ const {
   addCheckListTodoCard,
   addMemberTodoCard,
   removeMemberTodoCard,
+  removeLabelTodoCard,
   removeCheckListTodoCard,
   addLabelTodoCard
 } = require("../controllers/cards.controller");
@@ -42,6 +43,10 @@ router
 router
   .route("/:id/label")
   .patch(addLabelTodoCard)
+
+router
+  .route("/:id/label/:labelId")
+  .delete(removeLabelTodoCard)
 
 router
   .route("/:id/member")

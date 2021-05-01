@@ -44,3 +44,15 @@ exports.createLabel = asyncHandler(async (req, res, next) => {
     next(error);
   }
 });
+
+// @desc    Remove Label
+// @route   POST /api/labels/:id
+// @access  Private/User
+exports.removeLabel = asyncHandler(async (req, res, next) => {
+  try {
+    const label = await Label.create({ ...req.body });
+    return res.status(201).json({ label });
+  } catch (error) {
+    next(error);
+  }
+});
