@@ -1,8 +1,10 @@
 const Board = require("../models/Boards");
+const User = require("../models/User");
 const asyncHandler = require("../middlewares/async");
 const Lists = require("../models/Lists");
 const Cards = require("../models/Card");
 const Columns = require("../models/Columns");
+const CompletedTodo = require("../models/Completed");
 
 // @desc    GET Boards
 // @route   GET /api/boards
@@ -41,7 +43,6 @@ exports.getBoardById = asyncHandler(async (req, res, next) => {
 // @route   POST /api/boards
 // @access  Private/User
 exports.createBoard = asyncHandler(async (req, res, next) => {
-  console.log("action create");
   try {
     const board = await Board.create({
       ...req.body,
@@ -121,15 +122,30 @@ exports.getColumnByBoardId = asyncHandler(async (req, res, next) => {
 // @access  Private/User
 // @note    route parameters
 exports.removeSingleBoardById = asyncHandler(async (req, res, next) => {
+  // Xóa board, list, columns, card, completedTodo
   try {
     const id = req.params.id;
+    await User.find({ boardId: id }).update(
+      {},
+      {
+        $pull: { boardId: id },
+      },
+      { multi: true, upsert: false }
+    );
     await Board.findByIdAndRemove(id);
+    await CompletedTodo.findOneAndRemove({ boardId: id });
     const lists = await Lists.find({ boardId: id });
     lists.forEach(async (list) => {
       const cards = await Cards.find({ list: list._id });
       cards.forEach(async (card) => {
         await Cards.deleteOne({ _id: card._id });
       });
+
+      const columns = await Columns.find({ listId: list._id });
+      columns.forEach(async (column) => {
+        await Columns.deleteOne({ _id: column._id });
+      });
+
       await Lists.deleteOne({ _id: list._id });
     });
     res.status(200).json({ msg: "Xóa thành công" });

@@ -3,6 +3,9 @@ const createError = require("http-errors");
 const Card = require("../models/Card");
 const moment = require("moment");
 const Boards = require("../models/Boards");
+const Lists = require("../models/Lists");
+const Comment = require("../models/Comment");
+const Completed = require("../models/Completed");
 
 // @des GET ALL CARDS
 // @route GET /api/cards
@@ -246,9 +249,31 @@ exports.removeMemberTodoCard = asyncHandler(async (req, res, next) => {
 // @access  Private/User
 // @note    route parameters
 exports.removeSingleCardById = asyncHandler(async (req, res, next) => {
+  // Xóa card, comment, completed, list
   try {
     const id = req.params.id;
-    await Card.findByIdAndRemove(id);
+    const cards = await Card.find({ _id: id });
+    cards.forEach(async (card) => {
+      await Completed.findOneAndUpdate(
+        { boardId: card.boardId },
+        {
+          $pull: { cardFailed: card._id },
+        },
+        { new: true }
+      );
+
+      await Lists.findOneAndUpdate(
+        { _id: card.list },
+        {
+          $pull: { cards: card._id },
+        },
+        { new: true }
+      );
+
+      await Card.deleteOne({ _id: id });
+    });
+    await Comment.findOneAndRemove({ cardId: id });
+
     res.status(200).json({ msg: "Xóa thành công" });
   } catch (error) {
     next(createError(400, "Invalid Card ID"));
