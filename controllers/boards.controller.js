@@ -5,6 +5,7 @@ const Lists = require("../models/Lists");
 const Cards = require("../models/Card");
 const Columns = require("../models/Columns");
 const CompletedTodo = require("../models/Completed");
+const Activity = require("../models/Activity");
 
 // @desc    GET Boards
 // @route   GET /api/boards
@@ -112,6 +113,24 @@ exports.getColumnByBoardId = asyncHandler(async (req, res, next) => {
 
     const columns = await Columns.find({ boardId: _id });
     return res.status(200).json({ columns });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Get Activity based on boardId
+exports.getActivityByBoardId = asyncHandler(async (req, res, next) => {
+  const _id = req.params.id;
+  const _last = req.query.last;
+  const _limit = Number.parseInt(req.query.limit, 10) || 10;
+  try {
+    const board = await Board.findOne({ _id, userId: req.user });
+    if (!board) return res.status(404).json({ msg: "Board không tồn tại" });
+    const query = { boardId: _id };
+    if (_last) query._id = { $lt: _last };
+    const activities = await Activity.find(query, null, { limit: _limit + 1, sort: { _id: "desc" } });
+    res.append("X-Has-More", activities.length === _limit + 1 ? "true" : "false");
+    res.status(200).send(activities.slice(0, _limit));
   } catch (error) {
     next(error);
   }

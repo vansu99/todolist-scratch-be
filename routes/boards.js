@@ -7,7 +7,8 @@ const {
   addColumnIdToBoard,
   getListByBoardId,
   getCardByBoardId,
-  getColumnByBoardId
+  getColumnByBoardId,
+  getActivityByBoardId
 } = require("../controllers/boards.controller");
 
 const Board = require("../models/Boards");
@@ -34,6 +35,10 @@ router
 router
   .route("/:id/lists")
   .get(getListByBoardId)
+
+router
+  .route("/:id/activity")
+  .get(getActivityByBoardId)
 
 router
   .route("/:id/cards")
