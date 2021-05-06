@@ -4,6 +4,7 @@ const {
   getAllBoards,
   getBoardById,
   removeSingleBoardById,
+  updateBoardById,
   addColumnIdToBoard,
   getListByBoardId,
   getCardByBoardId,
@@ -30,6 +31,7 @@ router
 
 router
   .route("/:id")
+  .patch(updateBoardById)
   .delete(removeSingleBoardById)
 
 router

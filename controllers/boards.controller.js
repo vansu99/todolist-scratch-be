@@ -54,6 +54,22 @@ exports.createBoard = asyncHandler(async (req, res, next) => {
   }
 });
 
+// @desc    Update board content based on id
+exports.updateBoardById = asyncHandler(async (req, res, next) => {
+  const _id = req.params.id;
+  try {
+    const board = await Board.findOneAndUpdate({ _id, userId: req.user }, req.body.value, {
+      new: true,
+      runValidators: true,
+    });
+    if (!board) return res.status(404).send({ error: "Board not found!" });
+
+    res.status(200).json({ board });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // @desc    Update Column ID Single
 // @route   POST /api/boards/:id/column
 // @access  Private/User

@@ -20,6 +20,15 @@ const BoardsSchema = new mongoose.Schema(
         default: [],
       },
     ],
+    image: {
+      color: {
+        type: String,
+        default: "#4D5465",
+      },
+      full: {
+        type: String,
+      },
+    },
     slug: { type: String, slug: "title", unique: true },
   },
   { timestamps: true }
