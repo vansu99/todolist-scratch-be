@@ -3,7 +3,9 @@ const {
   createBoard,
   getAllBoards,
   getBoardById,
+  searchBoards,
   removeSingleBoardById,
+  removeColumnIdToBoard,
   updateBoardById,
   addColumnIdToBoard,
   getListByBoardId,
@@ -53,5 +55,12 @@ router
 router
   .route("/:id/column")
   .patch(addColumnIdToBoard)
+
+router
+  .route("/:id/column/:columnId")
+  .delete(removeColumnIdToBoard)
+
+router
+  .get("/search/by", searchBoards)
 
 module.exports = router;

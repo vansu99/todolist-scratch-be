@@ -23,7 +23,7 @@ const BoardsSchema = new mongoose.Schema(
     image: {
       color: {
         type: String,
-        default: "#4D5465",
+        default: "#FFFFFF",
       },
       full: {
         type: String,

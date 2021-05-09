@@ -2,6 +2,7 @@ const asyncHandler = require("../middlewares/async");
 const createError = require("http-errors");
 const List = require("../models/Lists");
 const Card = require("../models/Card");
+const Board = require("../models/Boards");
 const moment = require("moment");
 const Boards = require("../models/Boards");
 
@@ -116,6 +117,7 @@ exports.removeSingleListById = asyncHandler(async (req, res, next) => {
     cards.forEach(async card => (
       await Card.deleteOne({ _id: card._id })
     ));
+
     res.status(200).json({ msg: "Xóa thành công" });
   } catch (error) {
     next(createError(400, "Invalid List ID"));

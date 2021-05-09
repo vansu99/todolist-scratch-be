@@ -84,6 +84,22 @@ exports.addColumnIdToBoard = asyncHandler(async (req, res, next) => {
   }
 });
 
+// @desc    Remove Column ID Single
+// @route   POST /api/boards/:id/column/:columnId
+// @access  Private/User
+// @note    route parameters
+exports.removeColumnIdToBoard = asyncHandler(async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const columnId = req.params.columnId;
+    await Board.findOneAndUpdate({ _id: id }, { $pull: { columnId: columnId } }, { new: true });
+
+    res.json({ msg: "Xóa thành công." });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // Get Lists based on boardId
 exports.getListByBoardId = asyncHandler(async (req, res, next) => {
   const _id = req.params.id;
@@ -187,5 +203,27 @@ exports.removeSingleBoardById = asyncHandler(async (req, res, next) => {
   } catch (error) {
     next(createError(400, "Invalid board ID"));
     return;
+  }
+});
+
+// @desc Search board
+// @route Search /api/boards/search/by?board=
+// @access admin
+exports.searchBoards = asyncHandler(async (req, res, next) => {
+  try {
+    const { title = null } = req.query;
+    let query = {};
+    let regex = new RegExp(title, "i");
+    if (title !== null) query.title = regex;
+
+    const boards = await Board.find(query);
+
+    if (boards.length === 0) {
+      res.status(200).json({ msg: "We couldn't find any cards or boards that matched your search." });
+    } else {
+      res.status(200).json({ boards });
+    }
+  } catch (error) {
+    next(error);
   }
 });
