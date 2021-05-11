@@ -1,4 +1,6 @@
 const path = require("path");
+const fs = require("fs");
+const cloudinary = require("cloudinary").v2;
 const asyncHandler = require("../middlewares/async");
 const ErrorResponse = require("../utils/errorResponse");
 const User = require("../models/User");
@@ -122,5 +124,48 @@ exports.getCompletedByUserId = asyncHandler(async (req, res, next) => {
     return res.status(200).json({ completed });
   } catch (error) {
     next(error);
+  }
+});
+
+exports.changeAvatar = asyncHandler(async (req, res, next) => {
+  if (!req.file) {
+    return res.status(400).send({ error: "Please provide the image to upload." });
+  }
+
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  });
+  try {
+    const response = await cloudinary.uploader.upload(req.file.path, {
+      width: 200,
+      height: 200,
+      gravity: "face",
+      crop: "thumb",
+    });
+    fs.unlinkSync(req.file.path);
+
+    const avatarUpdate = await User.updateOne({ _id: req.user }, { image: response.secure_url });
+
+    if (!avatarUpdate.nModified) {
+      throw new Error("Could not update user avatar.");
+    }
+
+    return res.send({ image: response.secure_url });
+  } catch (error) {
+    next(error);
+  }
+});
+
+exports.removeAvatar = asyncHandler(async (req, res, next) => {
+  try {
+    const avatarUpdate = await User.updateOne({ _id: req.user }, { $unset: { image: "" } });
+    if (!avatarUpdate.nModified) {
+      next(err);
+    }
+    return res.status(204).send();
+  } catch (err) {
+    next(err);
   }
 });

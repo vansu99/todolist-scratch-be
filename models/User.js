@@ -23,11 +23,6 @@ const UserSchema = new mongoose.Schema(
         "https://lh3.googleusercontent.com/proxy/94QobP-VYScYvkJabWPSRnk7JIQMfQy9Xa-YxuXCDCIJ-iDMWXTcrfFuRICLyc8t-WANAeWcF7r6rqz8iDt-ANAiVPqag4q_HMCSoiPz6y8IrI6ZAG6imr3vjgs",
     },
 
-    phone: {
-      type: Number,
-      minlength: [11, "Phone number requied at least 10 character"],
-    },
-
     email: {
       type: String,
       required: [true, "Email is required"],
@@ -49,11 +44,11 @@ const UserSchema = new mongoose.Schema(
       select: false,
     },
 
-    confirmPassword: {
+    bio: {
       type: String,
-      required: true,
-      select: false,
+      default: "",
     },
+
     boardId: [
       {
         type: mongoose.Types.ObjectId,

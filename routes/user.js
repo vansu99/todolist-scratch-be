@@ -1,26 +1,38 @@
 const express = require("express");
+const multer = require("multer");
 const router = express.Router();
 
-const { searchUser, updateUser, getUser, getBoardByUserId, addBoardId, getCompletedByUserId } = require("../controllers/user.controller");
+const {
+  searchUser,
+  updateUser,
+  getUser,
+  getBoardByUserId,
+  addBoardId,
+  getCompletedByUserId,
+  changeAvatar,
+  removeAvatar,
+} = require("../controllers/user.controller");
 const { protect } = require("../middlewares/auth");
 
 router.use(protect);
 
-router
-  .route("/:id")
-  .patch(updateUser)
-  .get(getUser)
+router.route("/:id").patch(updateUser).get(getUser);
+
+router.route("/:id/boards").get(getBoardByUserId).post(addBoardId);
+
+router.route("/:id/completed").get(getCompletedByUserId);
 
 router
-  .route("/:id/boards")
-  .get(getBoardByUserId)
-  .post(addBoardId)
+  .route("/avatar")
+  .put(
+    multer({
+      dest: "temp/",
+      limits: { fieldSize: 8 * 1024 * 1024, fileSize: 10000000 },
+    }).single("image"),
+    changeAvatar
+  )
+  .delete(removeAvatar);
 
-router
-  .route("/:id/completed")
-  .get(getCompletedByUserId)
-
-router
-  .get("/search/by", searchUser)
+router.get("/search/by", searchUser);
 
 module.exports = router;
