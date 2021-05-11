@@ -133,11 +133,11 @@ exports.changeAvatar = asyncHandler(async (req, res, next) => {
     return res.status(400).send({ error: "Please provide the image to upload." });
   }
 
-  cloudinary.config({
-    cloud_name: config.CLOUDINARY_CLOUD_NAME,
-    api_key: config.CLOUDINARY_API_KEY,
-    api_secret: config.CLOUDINARY_API_SECRET,
-  });
+  // cloudinary.config({
+  //   cloud_name: config.CLOUDINARY_CLOUD_NAME,
+  //   api_key: config.CLOUDINARY_API_KEY,
+  //   api_secret: config.CLOUDINARY_API_SECRET,
+  // });
   try {
     const response = await cloudinary.uploader.upload(req.file.path, {
       width: 200,
