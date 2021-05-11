@@ -113,20 +113,20 @@ exports.updateProfile = asyncHandler(async (req, res, next) => {
 // @desc    Login user by Github
 // @route   POST /api/auth/updatedetails
 // @access  Private
-exports.githubLoginAuthentication = asyncHandler(async (req, res, next) => {
-  const { code, state } = req.body;
-  if (!code || !state) {
-    return res.status(400).send({ error: "Please provide a github access code and state." });
-  }
+// exports.githubLoginAuthentication = asyncHandler(async (req, res, next) => {
+//   const { code, state } = req.body;
+//   if (!code || !state) {
+//     return res.status(400).send({ error: "Please provide a github access code and state." });
+//   }
 
-  try {
-    const response = await axios.post("https://github.com/login/oauth/access_token", {
-      client_id: process.env.GITHUB_CLIENT_ID,
-      client_secret: process.env.GITHUB_CLIENT_SECRET,
-      code,
-      state,
-    });
-  } catch (error) {
-    next(error);
-  }
-});
+//   try {
+//     const response = await axios.post("https://github.com/login/oauth/access_token", {
+//       client_id: process.env.GITHUB_CLIENT_ID,
+//       client_secret: process.env.GITHUB_CLIENT_SECRET,
+//       code,
+//       state,
+//     });
+//   } catch (error) {
+//     next(error);
+//   }
+// });
