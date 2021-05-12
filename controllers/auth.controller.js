@@ -130,3 +130,28 @@ exports.updateProfile = asyncHandler(async (req, res, next) => {
 //     next(error);
 //   }
 // });
+
+// exports.changePassword = asyncHandler(async (req, res, next) => {
+//   const { oldPassword, newPassword } = req.body;
+//   let currentPassword = undefined;
+//   try {
+//     const userDocument = await User.findById(req.user);
+//     currentPassword = userDocument.password;
+
+//     const result = await bcrypt.compare(oldPassword, currentPassword);
+//     if (!result) {
+//       return res.status("401").send({
+//         error: "Your old password was entered incorrectly, please try again.",
+//       });
+//     }
+
+//     const newPasswordError = validatePassword(newPassword);
+//     if (newPasswordError) return res.status(400).send({ error: newPasswordError });
+
+//     userDocument.password = newPassword;
+//     await userDocument.save();
+//     return res.send();
+//   } catch (err) {
+//     return next(err);
+//   }
+// });

@@ -36,6 +36,10 @@ const CardsSchema = new mongoose.Schema(
       type: Array,
       default: [],
     },
+    attachments: {
+      type: Array,
+      default: [],
+    },
     label: {
       type: Array,
       default: [],
@@ -53,7 +57,7 @@ const CardsSchema = new mongoose.Schema(
     ],
     completed: {
       type: Boolean,
-      default: false
+      default: false,
     },
     slug: { type: String, slug: "title", unique: true },
   },
