@@ -1,7 +1,10 @@
 const asyncHandler = require("../middlewares/async");
 const createError = require("http-errors");
+const cloudinary = require("cloudinary").v2;
 const Card = require("../models/Card");
 const moment = require("moment");
+const fs = require("fs");
+const config = require("../configs/config");
 const Boards = require("../models/Boards");
 const Lists = require("../models/Lists");
 const Comment = require("../models/Comment");
@@ -278,5 +281,42 @@ exports.removeSingleCardById = asyncHandler(async (req, res, next) => {
   } catch (error) {
     next(createError(400, "Invalid Card ID"));
     return;
+  }
+});
+
+exports.attachmentCardTodo = asyncHandler(async (req, res, next) => {
+  const id = req.params.id;
+  let card = undefined;
+
+  if (!req.file) {
+    return res.status(400).send({ error: "Please provide the image to upload." });
+  }
+
+  cloudinary.config({
+    cloud_name: config.CLOUDINARY_CLOUD_NAME,
+    api_key: config.CLOUDINARY_API_KEY,
+    api_secret: config.CLOUDINARY_API_SECRET,
+  });
+
+  try {
+    const response = await cloudinary.uploader.upload(req.file.path, {
+      width: 200,
+      height: 200,
+      gravity: "face",
+      crop: "thumb",
+    });
+
+    fs.unlinkSync(req.file.path);
+    card = await Card.findOneAndUpdate(
+      { _id: id },
+      {
+        $push: { attachments: { ...req.body, item: response.secure_url } },
+      },
+      { new: true }
+    );
+
+    res.status(201).json({ card });
+  } catch (err) {
+    next(err);
   }
 });
