@@ -1,6 +1,9 @@
 const CompletedTodo = require("../models/Completed");
 const Card = require("../models/Card");
+const List = require("../models/Lists");
 const asyncHandler = require("../middlewares/async");
+const User = require("../models/User");
+const TeamTodo = require("../models/TeamTodo");
 
 // @desc    GET All Report TODO
 // @route   GET /api/reports/
@@ -20,7 +23,7 @@ exports.getAllReportTodo = asyncHandler(async (req, res, next) => {
 exports.getCompletedTodoByBoardId = asyncHandler(async (req, res, next) => {
   try {
     const { boardId } = req.body;
-    const completedTodo = await CompletedTodo.findOne({ userId: req.user, boardId: boardId });
+    const completedTodo = await CompletedTodo.findOne({ userId: req.user, boardId: boardId }).populate("boardId");
     const cards = await Card.find({});
     const totalCards = cards.filter((card) => boardId === String(card.boardId)).length;
     return res.status(200).json({ completedTodo, totalCards });
@@ -104,7 +107,6 @@ exports.removeCompletedTodoCard = asyncHandler(async (req, res, next) => {
   try {
     const { boardId } = req.body;
     const failedTodoRemove = req.params.failedId;
-    console.log(failedTodoRemove);
     await CompletedTodo.findOneAndUpdate(
       { boardId: boardId },
       {
@@ -113,6 +115,18 @@ exports.removeCompletedTodoCard = asyncHandler(async (req, res, next) => {
       { new: true }
     );
     return res.status(200).json({ msg: "Xóa thành công." });
+  } catch (error) {
+    next(error);
+  }
+});
+
+exports.getMemberTodoByBoardId = asyncHandler(async (req, res, next) => {
+  try {
+    const { boardId } = req.params;
+    // tìm những member nào có chung BoardId
+    const completedList = await TeamTodo.find({ boardId }).populate("userId");
+
+    return res.status(200).json({ completedList });
   } catch (error) {
     next(error);
   }

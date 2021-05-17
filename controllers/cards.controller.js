@@ -9,6 +9,8 @@ const Boards = require("../models/Boards");
 const Lists = require("../models/Lists");
 const Comment = require("../models/Comment");
 const Completed = require("../models/Completed");
+const User = require("../models/User");
+const TeamTodo = require("../models/TeamTodo");
 
 // @des GET ALL CARDS
 // @route GET /api/cards
@@ -42,7 +44,22 @@ exports.createCards = asyncHandler(async (req, res, next) => {
     const boardId = req.body.boardId;
     const board = await Boards.findOne({ _id: boardId, userId: req.user });
     if (!board) return res.status(404).send();
+
     const card = await Card.create({ ...req.body });
+    const teamTodo = new TeamTodo({
+      userId: req.user,
+      boardId,
+      failed: [card._id],
+    });
+    await teamTodo.save();
+    // await User.findOneAndUpdate(
+    //   { _id: req.user },
+    //   {
+    //     $addToSet: { failed: card._id },
+    //   },
+    //   { new: true }
+    // );
+
     return res.status(201).json({ card });
   } catch (error) {
     next(error);
@@ -91,8 +108,18 @@ exports.updateSingleCardById = asyncHandler(async (req, res, next) => {
   try {
     const id = req.params.id;
     const updates = req.body;
-
     const result = await Card.findOneAndUpdate({ _id: id }, updates, { new: true });
+
+    if (result.completed) {
+      await TeamTodo.findOneAndUpdate(
+        { boardId: result.boardId },
+        {
+          $addToSet: { completed: result._id },
+          $pull: { failed: result._id },
+        },
+        { new: true }
+      );
+    }
     res.status(200).json({ result });
   } catch (error) {
     next(createError(400, "Invalid Card ID"));
@@ -220,6 +247,22 @@ exports.addMemberTodoCard = asyncHandler(async (req, res, next) => {
       },
       { new: true }
     ).populate("member");
+
+    if (card.completed) {
+      const teamTodo = new TeamTodo({
+        userId: updates.value,
+        boardId: card.boardId,
+        completed: [card._id],
+      });
+      await teamTodo.save();
+    } else {
+      const teamTodo = new TeamTodo({
+        userId: updates.value,
+        boardId: card.boardId,
+        failed: [card._id],
+      });
+      await teamTodo.save();
+    }
     return res.status(201).json({ card });
   } catch (error) {
     next(error);
@@ -234,13 +277,32 @@ exports.removeMemberTodoCard = asyncHandler(async (req, res, next) => {
   try {
     const id = req.params.id;
     const memberIdRemove = req.params.memberId;
-    await Card.findOneAndUpdate(
+    const card = await Card.findOneAndUpdate(
       { _id: id },
       {
         $pull: { member: memberIdRemove },
       },
       { new: true }
     );
+    const teamTodo = await TeamTodo.find({ userId: memberIdRemove, boardId: card.boardId });
+    for (team of teamTodo) {
+      // if task đó có trong completed -> xóa. Failed cũng vậy
+      const taskCompleted = team.completed;
+      const taskFailed = team.failed;
+      if (taskCompleted.includes(card._id)) {
+        await TeamTodo.findOneAndUpdate(
+          { userId: memberIdRemove, boardId: card.boardId },
+          { $pull: { completed: card._id } },
+          { new: true }
+        );
+      } else if (taskFailed.includes(card._id)) {
+        await TeamTodo.findOneAndUpdate(
+          { userId: memberIdRemove, boardId: card.boardId },
+          { $pull: { failed: card._id } },
+          { new: true }
+        );
+      }
+    }
     return res.status(200).json({ msg: "Xóa thành công." });
   } catch (error) {
     next(error);
@@ -318,5 +380,22 @@ exports.attachmentCardTodo = asyncHandler(async (req, res, next) => {
     res.status(201).json({ card });
   } catch (err) {
     next(err);
+  }
+});
+
+exports.removeAttachTodoCard = asyncHandler(async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const attachIdRemove = req.params.attachId;
+    await Card.findOneAndUpdate(
+      { _id: id },
+      {
+        $pull: { attachments: { id: attachIdRemove } },
+      },
+      { new: true }
+    );
+    return res.status(200).json({ msg: "Xóa thành công." });
+  } catch (error) {
+    next(error);
   }
 });

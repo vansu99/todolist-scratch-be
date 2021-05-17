@@ -14,6 +14,7 @@ const {
   removeCheckListTodoCard,
   addLabelTodoCard,
   attachmentCardTodo,
+  removeAttachTodoCard
 } = require("../controllers/cards.controller");
 
 const Card = require("../models/Card");
@@ -49,6 +50,10 @@ router.route("/:id/attachment").patch(
   }).single("image"),
   attachmentCardTodo
 );
+
+router
+  .route("/:id/attachment/:attachId")
+  .delete(removeAttachTodoCard)
 
 // router.get("/search/by", temperatureFilter);
 // router.get("/sheet", moduleExcel);

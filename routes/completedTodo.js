@@ -7,6 +7,7 @@ const {
   createCompletedTodo,
   addCompletedTodo,
   addFailedTodo,
+  getMemberTodoByBoardId
 } = require("../controllers/completed.controller");
 
 const router = express.Router();
@@ -24,6 +25,8 @@ router.route("/:id")
   .get(getCompletedTodoById)
 
 router.route("/completed").patch(addCompletedTodo);
+
+router.route("/completed/:boardId").get(getMemberTodoByBoardId);
 
 router.route("/failed").patch(addFailedTodo);
 

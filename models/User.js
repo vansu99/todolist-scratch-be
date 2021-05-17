@@ -58,8 +58,15 @@ const UserSchema = new mongoose.Schema(
     ],
     completed: [
       {
-        type: mongoose.Types.ObjectId,
-        ref: "completedTodo",
+        type: mongoose.Schema.ObjectId,
+        ref: "Card",
+        default: [],
+      },
+    ],
+    failed: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: "Card",
         default: [],
       },
     ],
