@@ -212,11 +212,11 @@ exports.removeSingleBoardById = asyncHandler(async (req, res, next) => {
 exports.searchBoards = asyncHandler(async (req, res, next) => {
   try {
     const { title = null } = req.query;
-    let query = {};
     let regex = new RegExp(title, "i");
-    if (title !== null) query.title = regex;
+    // let query = {};
+    // if (title !== null) query.title = regex;
 
-    const boards = await Board.find(query);
+    const boards = await Board.find({ title: regex, userId: req.user });
 
     if (boards.length === 0) {
       res.status(200).json({ msg: "We couldn't find any cards or boards that matched your search." });
