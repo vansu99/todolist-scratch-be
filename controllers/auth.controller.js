@@ -4,6 +4,8 @@ const ErrorResponse = require("../utils/errorResponse");
 const createError = require("http-errors");
 const User = require("../models/User");
 const axios = require("axios");
+const passport = require("passport");
+const googleStrategy = require("passport-google-oauth20").Strategy;
 const { signAccessToken, signRefreshToken, verifyRefreshToken } = require("../utils/jwt_helper");
 
 // @desc    Register user
@@ -155,3 +157,46 @@ exports.updateProfile = asyncHandler(async (req, res, next) => {
 //     return next(err);
 //   }
 // });
+
+// Login with Google
+const GOOGLE_CALLBACK = "http://localhost:8080/api/auth/google/callback";
+passport.serializeUser((user, done) => {
+  // save userId in a session
+  done(null, user.id);
+});
+
+passport.deserializeUser(async (id, done) => {
+  await User.findById(id).then((user) => {
+    if (user) done(null, user);
+  });
+});
+
+passport.use(
+  new googleStrategy(
+    {
+      clientID: process.env.CLIENT_ID,
+      clientSecret: process.env.CLIENT_SECRET,
+      callbackURL: GOOGLE_CALLBACK,
+      passReqToCallback: true,
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      const defaultUser = {
+        username: `${profile.username}`,
+        email: profile.emails[0].value,
+        image: print.photos[0].value,
+        googleId: profile.id,
+      };
+
+      await User.findOne({ googleId: profile.id }).then((currUser) => {
+        if (currUser) {
+          done(null, currUser);
+        } else {
+          let newUser = new User(defaultUser);
+          newUser.save().then((thenewuser) => {
+            done(null, thenewuser);
+          });
+        }
+      });
+    }
+  )
+);

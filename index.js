@@ -11,6 +11,7 @@ const DBConnection = require("./configs/db");
 const config = require("./configs/config");
 const SocketServer = require("./socketServer");
 const jwt = require("jsonwebtoken");
+const passport = require("passport");
 
 DBConnection();
 
@@ -33,6 +34,8 @@ app.use(helmet());
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(passport.initialize());
+app.use(passport.session());
 app.use(
   cors({
     origin: "*",
