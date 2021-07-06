@@ -48,7 +48,6 @@ const UserSchema = new mongoose.Schema(
 
     password: {
       type: String,
-      required: true,
       minlength: [6, "Password requied at least 6 character"],
       select: false,
     },
@@ -79,6 +78,9 @@ const UserSchema = new mongoose.Schema(
         default: [],
       },
     ],
+    socialId: {
+      type: String
+    },
     resetTokenExpiration: String,
     passwordResetExpires: Date,
   },

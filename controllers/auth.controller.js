@@ -159,44 +159,20 @@ exports.updateProfile = asyncHandler(async (req, res, next) => {
 // });
 
 // Login with Google
-const GOOGLE_CALLBACK = "http://localhost:8080/api/auth/google/callback";
-passport.serializeUser((user, done) => {
-  // save userId in a session
-  done(null, user.id);
-});
-
-passport.deserializeUser(async (id, done) => {
-  await User.findById(id).then((user) => {
-    if (user) done(null, user);
-  });
-});
-
-passport.use(
-  new googleStrategy(
-    {
-      clientID: process.env.CLIENT_ID,
-      clientSecret: process.env.CLIENT_SECRET,
-      callbackURL: GOOGLE_CALLBACK,
-      passReqToCallback: true,
-    },
-    async (accessToken, refreshToken, profile, done) => {
-      const defaultUser = {
-        username: `${profile.username}`,
-        email: profile.emails[0].value,
-        image: print.photos[0].value,
-        googleId: profile.id,
-      };
-
-      await User.findOne({ googleId: profile.id }).then((currUser) => {
-        if (currUser) {
-          done(null, currUser);
-        } else {
-          let newUser = new User(defaultUser);
-          newUser.save().then((thenewuser) => {
-            done(null, thenewuser);
-          });
-        }
+exports.loginGoogle = asyncHandler(async (req, res, next) => {
+  try {
+    const { socialId } = req.body;
+    const user = await User.findOne({ socialId: socialId });
+    if (!user) {
+      const userCreated = await User.create({
+        ...req.body,
       });
+      return res.status(201).json({ user: userCreated });
+    } else {
+      return res.status(200).json({ success: true, user });
     }
-  )
-);
+  } catch (error) {
+    return res.status(404).json({ error });
+    next(error);
+  }
+});
