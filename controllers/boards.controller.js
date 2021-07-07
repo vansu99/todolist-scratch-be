@@ -58,7 +58,7 @@ exports.createBoard = asyncHandler(async (req, res, next) => {
 exports.updateBoardById = asyncHandler(async (req, res, next) => {
   const _id = req.params.id;
   try {
-    const board = await Board.findOneAndUpdate({ _id, userId: req.user }, req.body.value, {
+    const board = await Board.findOneAndUpdate({ _id, userId: req.user }, req.body, {
       new: true,
       runValidators: true,
     });

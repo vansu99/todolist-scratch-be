@@ -33,6 +33,5 @@ const BoardsSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
 mongoose.plugin(slug);
 module.exports = mongoose.model("Board", BoardsSchema);
