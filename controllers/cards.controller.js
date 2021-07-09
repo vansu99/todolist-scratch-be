@@ -108,7 +108,15 @@ exports.updateSingleCardById = asyncHandler(async (req, res, next) => {
   try {
     const id = req.params.id;
     const updates = req.body;
-    const result = await Card.findOneAndUpdate({ _id: id }, updates, { new: true });
+    const result = await Card.findOneAndUpdate({ _id: id }, updates, { new: true })
+      .populate("member")
+      .populate({
+        path: "comments",
+        populate: {
+          path: "user",
+          select: "-password",
+        },
+      });
 
     if (result.completed) {
       await TeamTodo.findOneAndUpdate(

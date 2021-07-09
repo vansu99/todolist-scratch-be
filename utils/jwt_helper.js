@@ -12,7 +12,7 @@ module.exports = {
       };
       JWT.sign({ id: userId }, secret, options, (err, token) => {
         if (err) {
-          reject(createError.InternalServerError());
+          reject(createError.Unauthorized());
           return;
         }
         resolve(token);
@@ -25,12 +25,12 @@ module.exports = {
       const payload = {};
       const secret = process.env.REFRESH_TOKEN_SECRET;
       const options = {
-        expiresIn: process.env.JWT_EXPIRES_IN,
+        expiresIn: "10h",
         audience: userId,
       };
       JWT.sign(payload, secret, options, (err, token) => {
         if (err) {
-          reject(createError.InternalServerError());
+          reject(createError.Unauthorized());
           return;
         }
         resolve(token);

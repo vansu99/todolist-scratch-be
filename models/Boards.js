@@ -21,13 +21,11 @@ const BoardsSchema = new mongoose.Schema(
       },
     ],
     image: {
-      color: {
-        type: String,
-        default: "#FFFFFF",
-      },
-      full: {
-        type: String,
-      },
+      type: String,
+      default: "#5e5e5e",
+    },
+    duedate: {
+      type: Date,
     },
     slug: { type: String, slug: "title", unique: true },
   },
