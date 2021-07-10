@@ -12,7 +12,7 @@ exports.protect = asyncHandler(async (req, res, next) => {
   const token = bearerToken[1];
   const verified = jwt.verify(token, process.env.JWT_SECRET);
   if (!verified) {
-    return res.status(401).json({ msg: "Token verification failed, access denied." });
+    return res.status(401).json({ msg: "Token verification failed, access denied" });
   }
   req.user = verified.id;
   next();
