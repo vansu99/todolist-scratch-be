@@ -5,7 +5,8 @@ const createError = require("http-errors");
 const User = require("../models/User");
 const axios = require("axios");
 const passport = require("passport");
-const googleStrategy = require("passport-google-oauth20").Strategy;
+const { OAuth2Client } = require("google-auth-library");
+const client = new OAuth2Client(process.env.CLIENT_ID);
 const { signAccessToken, signRefreshToken, verifyRefreshToken } = require("../utils/jwt_helper");
 
 // @desc    Register user
@@ -161,18 +162,31 @@ exports.updateProfile = asyncHandler(async (req, res, next) => {
 // Login with Google
 exports.loginGoogle = asyncHandler(async (req, res, next) => {
   try {
-    const { socialId } = req.body;
+    const { socialId, token } = req.body;
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.CLIENT_ID,
+    });
+
+    const { name, email, picture } = ticket.getPayload();
     const user = await User.findOne({ socialId: socialId });
+
     if (!user) {
       const userCreated = await User.create({
         ...req.body,
+        username: name,
+        email,
+        image: picture,
       });
-      return res.status(201).json({ user: userCreated });
+      const accessToken = await signAccessToken(userCreated.id);
+      return res.status(201).json({ user: userCreated, token: accessToken });
     } else {
-      return res.status(200).json({ success: true, user });
+      const accessToken = await signAccessToken(user.id);
+      return res.status(200).json({ success: true, user, token: accessToken });
     }
   } catch (error) {
-    return res.status(404).json({ error });
+    console.log(error);
+    return res.status(404).json(error);
     next(error);
   }
 });
