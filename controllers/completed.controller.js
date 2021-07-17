@@ -81,6 +81,26 @@ exports.addCompletedTodo = asyncHandler(async (req, res, next) => {
   }
 });
 
+// @desc    Remove Failed into CardCompleted
+// @route   POST /api/reports/completed/:completedId
+// @access  Private/User
+exports.removeFailedTodoCard = asyncHandler(async (req, res, next) => {
+  try {
+    const { boardId } = req.body;
+    const completedTodoRemove = req.params.completedId;
+    await CompletedTodo.findOneAndUpdate(
+      { boardId: boardId },
+      {
+        $pull: { cardCompleted: completedTodoRemove },
+      },
+      { new: true }
+    );
+    return res.status(200).json({ msg: "Xóa thành công." });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // @desc    Add Failed into CardCompleted
 // @route   POST /api/reports/:id/failed
 // @access  Private/User
