@@ -6,6 +6,7 @@ const Cards = require("../models/Card");
 const Columns = require("../models/Columns");
 const CompletedTodo = require("../models/Completed");
 const Activity = require("../models/Activity");
+const TeamWork = require("../models/TeamTodo");
 
 // @desc    GET Boards
 // @route   GET /api/boards
@@ -29,7 +30,7 @@ exports.getAllBoards = asyncHandler(async (req, res, next) => {
 exports.getBoardById = asyncHandler(async (req, res, next) => {
   const { ids } = req.body;
   try {
-    const board = await Board.find({ _id: { $in: ids } });
+    const board = await Board.find({ _id: { $in: ids } }).populate("member");
     if (!board) {
       return res.status(404).json({ msg: "Board không tồn tại." });
     } else {
@@ -45,9 +46,23 @@ exports.getBoardById = asyncHandler(async (req, res, next) => {
 // @access  Private/User
 exports.createBoard = asyncHandler(async (req, res, next) => {
   try {
+    const user = req.body.userId;
     const board = await Board.create({
       ...req.body,
     });
+    if (board._id) {
+      await Board.findOneAndUpdate(
+        { _id: board._id },
+        {
+          $addToSet: { member: user },
+        },
+        { new: true }
+      );
+      await TeamWork.create({
+        ownerId: user,
+        boardId: board._id,
+      });
+    }
     return res.status(201).json({ board });
   } catch (error) {
     next(error);
@@ -118,9 +133,6 @@ exports.getListByBoardId = asyncHandler(async (req, res, next) => {
 exports.getCardByBoardId = asyncHandler(async (req, res, next) => {
   const _id = req.params.id;
   try {
-    // const board = await Board.findOne({ _id, userId: req.user });
-    // if (!board) return res.status(404).json({ msg: "Board không tồn tại" });
-
     const cards = await Cards.find({ boardId: _id })
       .populate("member")
       .populate({
@@ -185,6 +197,7 @@ exports.removeSingleBoardById = asyncHandler(async (req, res, next) => {
     );
     await Board.findByIdAndRemove(id);
     await CompletedTodo.findOneAndRemove({ boardId: id });
+    await TeamWork.findOneAndRemove({ boardId: id });
     const lists = await Lists.find({ boardId: id });
     lists.forEach(async (list) => {
       const cards = await Cards.find({ list: list._id });
@@ -222,6 +235,34 @@ exports.searchBoards = asyncHandler(async (req, res, next) => {
       res.status(200).json({ msg: "We couldn't find any cards or boards that matched your search." });
     } else {
       res.status(200).json({ boards });
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
+// @desc    Add Member Project (Board)
+// @route   PATCH /api/boards/:id/member
+// @access  Private/User
+// @note    route parameters
+exports.addMemberProject = asyncHandler(async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const userId = req.body.value;
+    const board = await Board.findById(id);
+    const memberBoard = board.member;
+    if (memberBoard.includes(userId)) {
+      return res.status(400).json({ msg: "User đã được thêm vào dự án." });
+    } else {
+      const memberOfBoard = await Board.findOneAndUpdate(
+        { _id: id },
+        {
+          $addToSet: { member: userId },
+        },
+        { new: true }
+      ).populate("member");
+      await User.findOneAndUpdate({ _id: userId }, { $addToSet: { boardId: board._id } }, { new: true });
+      return res.status(200).json({ board: memberOfBoard });
     }
   } catch (error) {
     next(error);

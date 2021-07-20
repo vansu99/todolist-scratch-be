@@ -27,6 +27,13 @@ const BoardsSchema = new mongoose.Schema(
     duedate: {
       type: Date,
     },
+    member: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: "User",
+        default: [],
+      },
+    ],
     slug: { type: String, slug: "title", unique: true },
   },
   { timestamps: true }

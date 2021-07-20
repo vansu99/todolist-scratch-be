@@ -25,6 +25,7 @@ const columnsRoutes = require("./routes/columns");
 const boardsRoutes = require("./routes/boards");
 const commentsRoutes = require("./routes/comments");
 const completedRoutes = require("./routes/completedTodo");
+const teamworkRoutes = require('./routes/teamwork');
 const activityRoutes = require("./routes/activity");
 const notificationRoutes = require("./routes/notification");
 
@@ -92,6 +93,7 @@ app.use(versionApi("users"), userRoutes);
 app.use(versionApi("boards"), boardsRoutes);
 app.use(versionApi("comments"), commentsRoutes);
 app.use(versionApi("reports"), completedRoutes);
+app.use(versionApi("teamworks"), teamworkRoutes);
 app.use(versionApi("activities"), activityRoutes);
 app.use(versionApi("notification"), notificationRoutes);
 

@@ -1,9 +1,6 @@
 const CompletedTodo = require("../models/Completed");
 const Card = require("../models/Card");
-const List = require("../models/Lists");
 const asyncHandler = require("../middlewares/async");
-const User = require("../models/User");
-const TeamTodo = require("../models/TeamTodo");
 
 // @desc    GET All Report TODO
 // @route   GET /api/reports/
@@ -23,7 +20,7 @@ exports.getAllReportTodo = asyncHandler(async (req, res, next) => {
 exports.getCompletedTodoByBoardId = asyncHandler(async (req, res, next) => {
   try {
     const { boardId } = req.body;
-    const completedTodo = await CompletedTodo.findOne({ userId: req.user, boardId: boardId }).populate("boardId");
+    const completedTodo = await CompletedTodo.findOne({ boardId: boardId });
     const cards = await Card.find({});
     const totalCards = cards.filter((card) => boardId === String(card.boardId)).length;
     return res.status(200).json({ completedTodo, totalCards });
@@ -32,10 +29,11 @@ exports.getCompletedTodoByBoardId = asyncHandler(async (req, res, next) => {
   }
 });
 
+// by ID
 exports.getCompletedTodoById = asyncHandler(async (req, res, next) => {
   try {
     const { id } = req.params;
-    const report = await CompletedTodo.find({ _id: id, userId: req.user });
+    const report = await CompletedTodo.find({ _id: id });
     const boardID = report[0].boardId;
     const cards = await Card.find({});
     const totalCards = cards.filter((card) => String(boardID) === String(card.boardId)).length;
@@ -51,10 +49,7 @@ exports.getCompletedTodoById = asyncHandler(async (req, res, next) => {
 exports.createCompletedTodo = asyncHandler(async (req, res, next) => {
   try {
     const boardId = req.body.boardId;
-    const newCompletedTodo = new CompletedTodo({
-      userId: req.user,
-      boardId,
-    });
+    const newCompletedTodo = new CompletedTodo({ boardId });
     await newCompletedTodo.save();
     res.status(201).json({ newCompletedTodo });
   } catch (error) {
@@ -135,18 +130,6 @@ exports.removeCompletedTodoCard = asyncHandler(async (req, res, next) => {
       { new: true }
     );
     return res.status(200).json({ msg: "Xóa thành công." });
-  } catch (error) {
-    next(error);
-  }
-});
-
-exports.getMemberTodoByBoardId = asyncHandler(async (req, res, next) => {
-  try {
-    const { boardId } = req.params;
-    // tìm những member nào có chung BoardId
-    const completedList = await TeamTodo.find({ boardId }).populate("userId");
-
-    return res.status(200).json({ completedList });
   } catch (error) {
     next(error);
   }

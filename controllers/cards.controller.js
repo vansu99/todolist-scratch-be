@@ -46,12 +46,12 @@ exports.createCards = asyncHandler(async (req, res, next) => {
     if (!board) return res.status(404).send();
 
     const card = await Card.create({ ...req.body });
-    const teamTodo = new TeamTodo({
-      userId: req.user,
-      boardId,
-      failed: [card._id],
-    });
-    await teamTodo.save();
+    // const teamTodo = new TeamTodo({
+    //   userId: req.user,
+    //   boardId,
+    //   failed: [card._id],
+    // });
+    // await teamTodo.save();
     // await User.findOneAndUpdate(
     //   { _id: req.user },
     //   {
@@ -117,13 +117,50 @@ exports.updateSingleCardById = asyncHandler(async (req, res, next) => {
           select: "-password",
         },
       });
+    const teamwork = await TeamTodo.findOne({ boardId: result.boardId });
+    const memberTeamWork = teamwork.member;
+    memberTeamWork.forEach(async (mem) => {
+      const completed = mem.completed;
+      const failed = mem.failed;
+
+      if (result.completed) {
+        await TeamTodo.updateOne({}, { $pull: { "member.$[].failed": { _id: id } } }, { multi: true });
+        await TeamTodo.updateOne({}, { $addToSet: { "member.$[].completed": { _id: id } } }, { multi: true });
+      } else {
+        await TeamTodo.updateOne({}, { $pull: { "member.$[].completed": { _id: id } } }, { multi: true });
+        await TeamTodo.updateOne({}, { $addToSet: { "member.$[].failed": { _id: id } } }, { multi: true });
+      }
+    });
 
     if (result.completed) {
-      await TeamTodo.findOneAndUpdate(
+      // task hoàn thành -> add cardId vào completed và xóa ở failed
+      await Completed.findOneAndUpdate(
         { boardId: result.boardId },
         {
-          $addToSet: { completed: result._id },
-          $pull: { failed: result._id },
+          $addToSet: { cardCompleted: id },
+        },
+        { new: true }
+      );
+      await Completed.findOneAndUpdate(
+        { boardId: result.boardId },
+        {
+          $pull: { cardFailed: id },
+        },
+        { new: true }
+      );
+    } else {
+      // task chưa hoàn thành -> add vào Failed & xóa ở Completed
+      await Completed.findOneAndUpdate(
+        { boardId: result.boardId },
+        {
+          $addToSet: { cardFailed: id },
+        },
+        { new: true }
+      );
+      await Completed.findOneAndUpdate(
+        { boardId: result.boardId },
+        {
+          $pull: { cardCompleted: id },
         },
         { new: true }
       );
@@ -241,36 +278,46 @@ exports.removeLabelTodoCard = asyncHandler(async (req, res, next) => {
 });
 
 // @desc    Add Member Single Card By ID
-// @route   POST /api/cards/:id/member
+// @route   PATCH /api/cards/:id/member
 // @access  Private/User
 // @note    route parameters
 exports.addMemberTodoCard = asyncHandler(async (req, res, next) => {
   try {
     const id = req.params.id;
-    const updates = req.body;
+    const userId = req.body.value;
     const card = await Card.findOneAndUpdate(
       { _id: id },
       {
-        $addToSet: { member: updates.value },
+        $addToSet: { member: userId },
       },
       { new: true }
     ).populate("member");
+    // add cardID vào field 'failed' của users
+    await User.findOneAndUpdate(
+      { _id: userId },
+      {
+        $addToSet: {
+          failed: card._id,
+        },
+      },
+      { new: true }
+    );
 
-    if (card.completed) {
-      const teamTodo = new TeamTodo({
-        userId: updates.value,
-        boardId: card.boardId,
-        completed: [card._id],
-      });
-      await teamTodo.save();
-    } else {
-      const teamTodo = new TeamTodo({
-        userId: updates.value,
-        boardId: card.boardId,
-        failed: [card._id],
-      });
-      await teamTodo.save();
-    }
+    // if (card.completed) {
+    //   const teamTodo = new TeamTodo({
+    //     userId: updates.value,
+    //     boardId: card.boardId,
+    //     completed: [card._id],
+    //   });
+    //   await teamTodo.save();
+    // } else {
+    //   const teamTodo = new TeamTodo({
+    //     userId: updates.value,
+    //     boardId: card.boardId,
+    //     failed: [card._id],
+    //   });
+    //   await teamTodo.save();
+    // }
     return res.status(201).json({ card });
   } catch (error) {
     next(error);
@@ -285,32 +332,33 @@ exports.removeMemberTodoCard = asyncHandler(async (req, res, next) => {
   try {
     const id = req.params.id;
     const memberIdRemove = req.params.memberId;
-    const card = await Card.findOneAndUpdate(
+    await Card.findOneAndUpdate(
       { _id: id },
       {
         $pull: { member: memberIdRemove },
       },
       { new: true }
     );
-    const teamTodo = await TeamTodo.find({ userId: memberIdRemove, boardId: card.boardId });
-    for (team of teamTodo) {
-      // if task đó có trong completed -> xóa. Failed cũng vậy
-      const taskCompleted = team.completed;
-      const taskFailed = team.failed;
-      if (taskCompleted.includes(card._id)) {
-        await TeamTodo.findOneAndUpdate(
-          { userId: memberIdRemove, boardId: card.boardId },
-          { $pull: { completed: card._id } },
-          { new: true }
-        );
-      } else if (taskFailed.includes(card._id)) {
-        await TeamTodo.findOneAndUpdate(
-          { userId: memberIdRemove, boardId: card.boardId },
-          { $pull: { failed: card._id } },
-          { new: true }
-        );
-      }
-    }
+
+    // const teamTodo = await TeamTodo.find({ userId: memberIdRemove, boardId: card.boardId });
+    // for (team of teamTodo) {
+    //   // if task đó có trong completed -> xóa. Failed cũng vậy
+    //   const taskCompleted = team.completed;
+    //   const taskFailed = team.failed;
+    //   if (taskCompleted.includes(card._id)) {
+    //     await TeamTodo.findOneAndUpdate(
+    //       { userId: memberIdRemove, boardId: card.boardId },
+    //       { $pull: { completed: card._id } },
+    //       { new: true }
+    //     );
+    //   } else if (taskFailed.includes(card._id)) {
+    //     await TeamTodo.findOneAndUpdate(
+    //       { userId: memberIdRemove, boardId: card.boardId },
+    //       { $pull: { failed: card._id } },
+    //       { new: true }
+    //     );
+    //   }
+    // }
     return res.status(200).json({ msg: "Xóa thành công." });
   } catch (error) {
     next(error);
@@ -325,26 +373,50 @@ exports.removeSingleCardById = asyncHandler(async (req, res, next) => {
   // Xóa card, comment, completed, list
   try {
     const id = req.params.id;
-    const cards = await Card.find({ _id: id });
-    cards.forEach(async (card) => {
-      await Completed.findOneAndUpdate(
-        { boardId: card.boardId },
-        {
-          $pull: { cardFailed: card._id },
-        },
-        { new: true }
-      );
+    const card = await Card.findOne({ _id: id });
+    const boardId = card.boardId;
+    const listId = card.list;
+    const completedTodo = await Completed.findOne({ boardId });
+    const teamwork = await TeamTodo.findOne({ boardId });
+    const memberTeamWork = teamwork.member;
 
-      await Lists.findOneAndUpdate(
-        { _id: card.list },
-        {
-          $pull: { cards: card._id },
-        },
-        { new: true }
-      );
+    memberTeamWork.forEach(async (mem) => {
+      const completed = mem.completed;
+      const failed = mem.failed;
 
-      await Card.deleteOne({ _id: id });
+      if (failed.findIndex((num) => num._id === id) !== -1) {
+        await TeamTodo.updateOne({}, { $pull: { "member.$[].failed": { _id: id } } }, { multi: true });
+      } else if (completed.findIndex((num) => num._id === id) !== -1) {
+        await TeamTodo.updateOne({}, { $pull: { "member.$[].completed": { _id: id } } }, { multi: true });
+      }
     });
+
+    await Lists.findOneAndUpdate(
+      { _id: listId },
+      {
+        $pull: { cards: id },
+      },
+      { new: true }
+    );
+    if (completedTodo.cardCompleted.includes(id)) {
+      await Completed.findOneAndUpdate(
+        { boardId },
+        {
+          $pull: { cardCompleted: id },
+        },
+        { new: true }
+      );
+    } else if (completedTodo.cardFailed.includes(id)) {
+      await Completed.findOneAndUpdate(
+        { boardId },
+        {
+          $pull: { cardFailed: id },
+        },
+        { new: true }
+      );
+    }
+
+    await Card.deleteOne({ _id: id });
     await Comment.findOneAndRemove({ cardId: id });
 
     res.status(200).json({ msg: "Xóa thành công" });

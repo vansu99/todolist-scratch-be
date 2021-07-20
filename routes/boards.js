@@ -8,6 +8,7 @@ const {
   removeColumnIdToBoard,
   updateBoardById,
   addColumnIdToBoard,
+  addMemberProject,
   getListByBoardId,
   getCardByBoardId,
   getColumnByBoardId,
@@ -59,6 +60,10 @@ router
 router
   .route("/:id/column/:columnId")
   .delete(removeColumnIdToBoard)
+
+router
+  .route("/:id/member")
+  .patch(addMemberProject)
 
 router
   .get("/search/by", searchBoards)

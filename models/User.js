@@ -64,20 +64,6 @@ const UserSchema = new mongoose.Schema(
         default: [],
       },
     ],
-    completed: [
-      {
-        type: mongoose.Schema.ObjectId,
-        ref: "Card",
-        default: [],
-      },
-    ],
-    failed: [
-      {
-        type: mongoose.Schema.ObjectId,
-        ref: "Card",
-        default: [],
-      },
-    ],
     socialId: {
       type: String
     },

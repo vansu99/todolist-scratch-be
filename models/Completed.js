@@ -3,11 +3,11 @@ const slug = require("mongoose-slug-generator");
 
 const CompletedTodoSchema = new mongoose.Schema(
   {
-    userId: {
-      type: mongoose.Schema.ObjectId,
-      ref: "User",
-      required: true,
-    },
+    // userId: {
+    //   type: mongoose.Schema.ObjectId,
+    //   ref: "User",
+    //   required: true,
+    // },
     boardId: {
       type: mongoose.Schema.ObjectId,
       ref: "Board",

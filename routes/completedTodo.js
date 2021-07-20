@@ -7,7 +7,6 @@ const {
   createCompletedTodo,
   addCompletedTodo,
   addFailedTodo,
-  getMemberTodoByBoardId,
   removeFailedTodoCard
 } = require("../controllers/completed.controller");
 
@@ -26,8 +25,6 @@ router.route("/:id")
   .get(getCompletedTodoById)
 
 router.route("/completed").patch(addCompletedTodo);
-
-router.route("/completed/:boardId").get(getMemberTodoByBoardId);
 
 router.route("/completed/:completedId").patch(removeFailedTodoCard);
 
