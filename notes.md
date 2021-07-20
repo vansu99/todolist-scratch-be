@@ -32,7 +32,7 @@ board -> list -> task
   [x] xóa userId trong field 'member' của table 'cards'
   [x] xóa cardId trong field 'completed' hoặc 'failed' của table 'users'
     + check xem cardId nằm trong field nào của table 'users'
-  [] xóa userId trong field 'member' của table 'teamworks'
+  [x] xóa userId trong field 'member' của table 'teamworks'
 
 
 - table 'users'
@@ -54,19 +54,19 @@ board chứa tổng các task (title, status)
       + member: [{ id, name, completed: [], failed: [] }]
 [x] khi 1 project (board) được tạo ra thì sẽ tạo luôn 'teamtodo' kèm theo để quản lý việc teamwork (nếu có)
 
-[x] update cardId theo status của task:
+[x] UPDATE cardId theo status của task:
   - update status 'completed' trong table 'cards'                                                            [R]
   - update cardId theo status ứng với field 'cardCompleted' hoặc 'cardFailed' trong table 'completedTodos'    [R]
   - update cardId theo status ứng với field 'completed' hoặc 'failed' trong table 'teamworks'                 [R]
 
-[x] xóa project (board) thì sẽ:
+[x] REMOVE PROJECT (board) thì sẽ:
   + xóa hẳn record trong table 'teamworks' dựa vào boardId.   [R]
   + xóa boardId tại các User có tham gia                      [R]
   + xóa boardId tại các List thuộc project                    [R]
   + xóa boardId tại các task thuộc project                    [R]
   + xóa boardId tại CompletedTodo                             [R]
 
-[x] xóa task (card) thì sẽ:
+[x] REMOVE TASK (card) thì sẽ:
   - xóa cardId tại table 'teamworks'            [R]
   - xóa cardId tại table 'CompletedTodo'        [R]
   - xóa cardId tại table 'Lists' chứa task đó   [R]

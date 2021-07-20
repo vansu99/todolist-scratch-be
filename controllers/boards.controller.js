@@ -47,6 +47,7 @@ exports.getBoardById = asyncHandler(async (req, res, next) => {
 exports.createBoard = asyncHandler(async (req, res, next) => {
   try {
     const user = req.body.userId;
+    const ownerProject = await User.findOne({ _id: user });
     const board = await Board.create({
       ...req.body,
     });
@@ -58,9 +59,12 @@ exports.createBoard = asyncHandler(async (req, res, next) => {
         },
         { new: true }
       );
+      await User.updateOne({}, { $addToSet: { boardId: board._id } }, { new: true });
+      await CompletedTodo.create({ boardId: board._id });
       await TeamWork.create({
-        ownerId: user,
+        ownerId: ownerProject._id,
         boardId: board._id,
+        member: [{ id: ownerProject._id, username: ownerProject.username, completed: [], failed: [] }],
       });
     }
     return res.status(201).json({ board });

@@ -46,19 +46,17 @@ exports.createCards = asyncHandler(async (req, res, next) => {
     if (!board) return res.status(404).send();
 
     const card = await Card.create({ ...req.body });
-    // const teamTodo = new TeamTodo({
-    //   userId: req.user,
-    //   boardId,
-    //   failed: [card._id],
-    // });
-    // await teamTodo.save();
-    // await User.findOneAndUpdate(
-    //   { _id: req.user },
-    //   {
-    //     $addToSet: { failed: card._id },
-    //   },
-    //   { new: true }
-    // );
+    if (card._id) {
+      const boardId = card.boardId;
+      await Lists.findOneAndUpdate({ _id: card.list }, { $addToSet: { cards: card._id } }, { new: true });
+      await Completed.findOneAndUpdate(
+        { boardId },
+        {
+          $addToSet: { cardFailed: card._id },
+        },
+        { new: true }
+      );
+    }
 
     return res.status(201).json({ card });
   } catch (error) {
@@ -120,15 +118,28 @@ exports.updateSingleCardById = asyncHandler(async (req, res, next) => {
     const teamwork = await TeamTodo.findOne({ boardId: result.boardId });
     const memberTeamWork = teamwork.member;
     memberTeamWork.forEach(async (mem) => {
-      const completed = mem.completed;
-      const failed = mem.failed;
-
       if (result.completed) {
-        await TeamTodo.updateOne({}, { $pull: { "member.$[].failed": { _id: id } } }, { multi: true });
-        await TeamTodo.updateOne({}, { $addToSet: { "member.$[].completed": { _id: id } } }, { multi: true });
+        await TeamTodo.findOneAndUpdate(
+          { boardId: result.boardId },
+          { $pull: { "member.$[].failed": { _id: id } } },
+          { multi: true }
+        );
+        await TeamTodo.findOneAndUpdate(
+          { boardId: result.boardId },
+          { $addToSet: { "member.$[].completed": { _id: id } } },
+          { multi: true }
+        );
       } else {
-        await TeamTodo.updateOne({}, { $pull: { "member.$[].completed": { _id: id } } }, { multi: true });
-        await TeamTodo.updateOne({}, { $addToSet: { "member.$[].failed": { _id: id } } }, { multi: true });
+        await TeamTodo.findOneAndUpdate(
+          { boardId: result.boardId },
+          { $pull: { "member.$[].completed": { _id: id } } },
+          { multi: true }
+        );
+        await TeamTodo.findOneAndUpdate(
+          { boardId: result.boardId },
+          { $addToSet: { "member.$[].failed": { _id: id } } },
+          { multi: true }
+        );
       }
     });
 
