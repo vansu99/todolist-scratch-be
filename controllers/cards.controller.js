@@ -303,32 +303,25 @@ exports.addMemberTodoCard = asyncHandler(async (req, res, next) => {
       },
       { new: true }
     ).populate("member");
-    // add cardID vào field 'failed' của users
-    await User.findOneAndUpdate(
-      { _id: userId },
-      {
-        $addToSet: {
-          failed: card._id,
-        },
-      },
-      { new: true }
-    );
 
-    // if (card.completed) {
-    //   const teamTodo = new TeamTodo({
-    //     userId: updates.value,
-    //     boardId: card.boardId,
-    //     completed: [card._id],
-    //   });
-    //   await teamTodo.save();
-    // } else {
-    //   const teamTodo = new TeamTodo({
-    //     userId: updates.value,
-    //     boardId: card.boardId,
-    //     failed: [card._id],
-    //   });
-    //   await teamTodo.save();
-    // }
+    // add cardId tương ứng với task của member được assign
+    const team = await TeamTodo.findOne({ boardId: card.boardId });
+    const newArr = [...team.member];
+    const index = newArr.findIndex((mem) => mem.id === userId);
+
+    if (newArr[index].failed.some((m) => m._id === id)) {
+      return res.status(400).json({ msg: "User đang làm task này. Vui lòng thử lại." });
+    } else {
+      newArr[index].failed.push({ _id: id });
+      await TeamTodo.findOneAndUpdate(
+        { boardId: card.boardId },
+        {
+          $set: { member: newArr },
+        },
+        { new: true }
+      );
+    }
+
     return res.status(201).json({ card });
   } catch (error) {
     next(error);
@@ -343,7 +336,7 @@ exports.removeMemberTodoCard = asyncHandler(async (req, res, next) => {
   try {
     const id = req.params.id;
     const memberIdRemove = req.params.memberId;
-    await Card.findOneAndUpdate(
+    const card = await Card.findOneAndUpdate(
       { _id: id },
       {
         $pull: { member: memberIdRemove },
@@ -351,25 +344,32 @@ exports.removeMemberTodoCard = asyncHandler(async (req, res, next) => {
       { new: true }
     );
 
-    // const teamTodo = await TeamTodo.find({ userId: memberIdRemove, boardId: card.boardId });
-    // for (team of teamTodo) {
-    //   // if task đó có trong completed -> xóa. Failed cũng vậy
-    //   const taskCompleted = team.completed;
-    //   const taskFailed = team.failed;
-    //   if (taskCompleted.includes(card._id)) {
-    //     await TeamTodo.findOneAndUpdate(
-    //       { userId: memberIdRemove, boardId: card.boardId },
-    //       { $pull: { completed: card._id } },
-    //       { new: true }
-    //     );
-    //   } else if (taskFailed.includes(card._id)) {
-    //     await TeamTodo.findOneAndUpdate(
-    //       { userId: memberIdRemove, boardId: card.boardId },
-    //       { $pull: { failed: card._id } },
-    //       { new: true }
-    //     );
-    //   }
-    // }
+    const team = await TeamTodo.findOne({ boardId: card.boardId });
+    const newArr = [...team.member];
+    const index = newArr.findIndex((mem) => mem.id === memberIdRemove);
+
+    const indexFailedRemove = newArr[index].failed.findIndex((item) => item._id === id);
+    const indexCompletedRemove = newArr[index].completed.findIndex((item) => item._id === id);
+    if (indexFailedRemove !== -1) {
+      newArr[index].failed.splice(indexFailedRemove, 1);
+      await TeamTodo.findOneAndUpdate(
+        { boardId: card.boardId },
+        {
+          $set: { member: newArr },
+        },
+        { new: true }
+      );
+    } else if (indexCompletedRemove !== -1) {
+      newArr[index].completed.splice(indexCompletedRemove, 1);
+      await TeamTodo.findOneAndUpdate(
+        { boardId: card.boardId },
+        {
+          $set: { member: newArr },
+        },
+        { new: true }
+      );
+    }
+
     return res.status(200).json({ msg: "Xóa thành công." });
   } catch (error) {
     next(error);

@@ -253,6 +253,7 @@ exports.addMemberProject = asyncHandler(async (req, res, next) => {
   try {
     const id = req.params.id;
     const userId = req.body.value;
+    const memberAssigned = req.body.memberInfor;
     const board = await Board.findById(id);
     const memberBoard = board.member;
     if (memberBoard.includes(userId)) {
@@ -266,6 +267,7 @@ exports.addMemberProject = asyncHandler(async (req, res, next) => {
         { new: true }
       ).populate("member");
       await User.findOneAndUpdate({ _id: userId }, { $addToSet: { boardId: board._id } }, { new: true });
+      await TeamWork.findOneAndUpdate({ boardId: board.id }, { $addToSet: { member: memberAssigned } }, { new: true });
       return res.status(200).json({ board: memberOfBoard });
     }
   } catch (error) {
