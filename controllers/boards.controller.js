@@ -30,7 +30,9 @@ exports.getAllBoards = asyncHandler(async (req, res, next) => {
 exports.getBoardById = asyncHandler(async (req, res, next) => {
   const { ids } = req.body;
   try {
-    const board = await Board.find({ _id: { $in: ids } }).populate("member");
+    const board = await Board.find({ _id: { $in: ids } })
+      .populate("member")
+      .populate("userId");
     if (!board) {
       return res.status(404).json({ msg: "Board không tồn tại." });
     } else {

@@ -309,6 +309,10 @@ exports.addMemberTodoCard = asyncHandler(async (req, res, next) => {
     const newArr = [...team.member];
     const index = newArr.findIndex((mem) => mem.id === userId);
 
+    if (card.completed) {
+      return res.status(400).json({ msg: "Task đã được hoàn thành. Không thể thêm thành viên." });
+    }
+
     if (newArr[index].failed.some((m) => m._id === id)) {
       return res.status(400).json({ msg: "User đang làm task này. Vui lòng thử lại." });
     } else {
