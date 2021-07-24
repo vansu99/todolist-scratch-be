@@ -276,3 +276,47 @@ exports.addMemberProject = asyncHandler(async (req, res, next) => {
     next(error);
   }
 });
+
+// @desc    Remove Member Project (Board)
+// @route   PATCH /api/boards/:id/member/:memberId
+// @access  Private/User
+// @note    route parameters
+exports.removeMemberProject = asyncHandler(async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const memberIdRemove = req.params.memberId;
+    const board = await Board.findById(id);
+    const memberBoard = board.member;
+
+    const team = await TeamWork.findOne({ boardId: board._id });
+    const newArr = [...team.member];
+    const index = newArr.findIndex((mem) => mem.id === memberIdRemove);
+
+    if (memberBoard.includes(memberIdRemove)) {
+      const memberOfBoard = await Board.findOneAndUpdate(
+        { _id: id },
+        {
+          $pull: { member: memberIdRemove },
+        },
+        { new: true }
+      ).populate("member");
+
+      await User.findOneAndUpdate({ _id: memberIdRemove }, { $pull: { boardId: board._id } }, { new: true });
+
+      if (index !== -1) {
+        newArr.splice(index, 1);
+        await TeamWork.findOneAndUpdate(
+          { boardId: board._id },
+          {
+            $set: { member: newArr },
+          },
+          { new: true }
+        );
+      }
+
+      return res.status(200).json({ board: memberOfBoard });
+    }
+  } catch (error) {
+    next(error);
+  }
+});

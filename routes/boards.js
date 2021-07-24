@@ -6,6 +6,7 @@ const {
   searchBoards,
   removeSingleBoardById,
   removeColumnIdToBoard,
+  removeMemberProject,
   updateBoardById,
   addColumnIdToBoard,
   addMemberProject,
@@ -64,6 +65,10 @@ router
 router
   .route("/:id/member")
   .patch(addMemberProject)
+
+router
+  .route("/:id/member/:memberId")
+  .delete(removeMemberProject)
 
 router
   .get("/search/by", searchBoards)
