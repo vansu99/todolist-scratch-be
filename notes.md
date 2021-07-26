@@ -69,3 +69,18 @@ board chứa tổng các task (title, status)
     [R] xóa cardId tại table 'CompletedTodo'
     [R] xóa cardId tại table 'Lists' chứa task đó
     [R] xóa cardId tại table 'Comments' chứa task
+
+
+=== Sorting / Filtering ===
+
+[] Sorting:
+  [R] cần có boardId làm chuẩn. Tức là chỉ search các cards trong phạm vi của project (Board) đó thôi.
+  [] ưu tiên sort theo tăng dần (ASC)
+  [] sort theo tên task
+  [] sort theo ngày hạn chót (due date)
+  []
+
+
+[] Filtering:
+  [x] theo due date -> today, this week, this month
+  [x] theo task title

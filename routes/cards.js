@@ -14,7 +14,8 @@ const {
   removeCheckListTodoCard,
   addLabelTodoCard,
   attachmentCardTodo,
-  removeAttachTodoCard
+  removeAttachTodoCard,
+  searchTaskByOptions
 } = require("../controllers/cards.controller");
 
 const Card = require("../models/Card");
@@ -25,8 +26,11 @@ const { protect } = require("../middlewares/auth");
 
 router.use(protect);
 
-router.route("/").get(advancedResults(Card), getAllCards).post(createCards);
+router.route("/").get(advancedResults(Card), getAllCards).post(createCards)
 
+router
+  .route('/search')
+  .get(searchTaskByOptions)
 router.route("/:slug").get(advancedResults(Card), getCardBySlug);
 
 router.route("/:id").get(getCardById).patch(updateSingleCardById).delete(removeSingleCardById);

@@ -494,3 +494,126 @@ exports.removeAttachTodoCard = asyncHandler(async (req, res, next) => {
     next(error);
   }
 });
+
+// @desc    Search Task Project
+// @route   GET /api/cards/search?q=task
+// @access  Private/User
+// @note    route parameters
+exports.searchTaskByOptions = asyncHandler(async (req, res, next) => {
+  try {
+    const { boardId, q, date, _sort } = req.query;
+    let today = new Date();
+    today.setHours(0, 0, 0, 0);
+    let first = today.getDate() - today.getDay();
+    let last = first + 6;
+    let firstday = new Date(today.setDate(first)).toUTCString();
+    let lastday = new Date(today.setDate(last)).toUTCString();
+    let firstDayMonth = new Date(today.setDate(1));
+    let lastDayMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+    if (q) {
+      let regex = new RegExp(q, "i");
+      const card = await Card.find({ boardId, title: regex })
+        .populate("member")
+        .populate({
+          path: "comments",
+          populate: {
+            path: "user",
+            select: "-password",
+          },
+        });
+      return res.status(200).json({ card });
+    }
+
+    // sort alphabetical, due date
+    switch (_sort) {
+      case "alpha":
+        const cardSortAlpha = await Card.find({ boardId }, {}, { sort: { title: 1 } })
+          .populate("member")
+          .populate({
+            path: "comments",
+            populate: {
+              path: "user",
+              select: "-password",
+            },
+          });
+        return res.status(200).json({ card: cardSortAlpha });
+
+      case "duedate":
+        const cardSortDueDate = await Card.find({ boardId }, {}, { sort: { date: 1 } })
+          .populate("member")
+          .populate({
+            path: "comments",
+            populate: {
+              path: "user",
+              select: "-password",
+            },
+          });
+        return res.status(200).json({ card: cardSortDueDate });
+
+      default:
+        break;
+    }
+
+    // this week, this month
+    switch (date) {
+      case "month":
+        const card = await Card.find({
+          boardId,
+          date: {
+            $gte: firstDayMonth,
+            $lte: lastDayMonth,
+          },
+        })
+          .populate("member")
+          .populate({
+            path: "comments",
+            populate: {
+              path: "user",
+              select: "-password",
+            },
+          });
+        return res.status(200).json({ card });
+
+      case "week":
+        const cardWeek = await Card.find({
+          boardId,
+          date: {
+            $gte: firstday,
+            $lte: lastday,
+          },
+        })
+          .populate("member")
+          .populate({
+            path: "comments",
+            populate: {
+              path: "user",
+              select: "-password",
+            },
+          });
+        return res.status(200).json({ card: cardWeek });
+
+      case "today":
+        const cardToday = await Card.find({
+          boardId,
+          date: {
+            $gte: today,
+          },
+        })
+          .populate("member")
+          .populate({
+            path: "comments",
+            populate: {
+              path: "user",
+              select: "-password",
+            },
+          });
+        return res.status(200).json({ card: cardToday });
+
+      default:
+        break;
+    }
+  } catch (error) {
+    next(error);
+  }
+});
