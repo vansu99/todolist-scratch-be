@@ -25,3 +25,13 @@ exports.deleteActivity = asyncHandler(async (req, res, next) => {
     next(error);
   }
 });
+
+exports.clearAllActivity = asyncHandler(async (req, res, next) => {
+  try {
+    const activity = await Activity.deleteMany({ boardId: req.params.boardId });
+    if (!activity) return res.status(404).send();
+    res.status(200).send({ msg: "Xóa thành công.", activity: [] });
+  } catch (error) {
+    next(error);
+  }
+});

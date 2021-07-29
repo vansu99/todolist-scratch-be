@@ -1,5 +1,5 @@
 const express = require("express");
-const { createActivity, deleteActivity } = require("../controllers/activity.controller");
+const { createActivity, deleteActivity, clearAllActivity } = require("../controllers/activity.controller");
 
 const router = express.Router();
 const { protect } = require("../middlewares/auth");
@@ -13,5 +13,9 @@ router
 router
   .route("/:id")
   .delete(deleteActivity)
+
+router
+  .route('/clear/:boardId')
+  .delete(clearAllActivity)
 
 module.exports = router;

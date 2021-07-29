@@ -20,7 +20,7 @@ exports.getAllReportTodo = asyncHandler(async (req, res, next) => {
 exports.getCompletedTodoByBoardId = asyncHandler(async (req, res, next) => {
   try {
     const { boardId } = req.body;
-    const completedTodo = await CompletedTodo.findOne({ boardId: boardId });
+    const completedTodo = await CompletedTodo.findOne({ boardId: boardId }).populate("boardId");
     const cards = await Card.find({});
     const totalCards = cards.filter((card) => boardId === String(card.boardId)).length;
     return res.status(200).json({ completedTodo, totalCards });
