@@ -9,13 +9,8 @@ const { protect } = require("../middlewares/auth");
 
 router.use(protect);
 
-router
-  .route("/")
-  .get(advancedResults(Label), getAllLabels)
-  .post(createLabel);
+router.route("/").get(advancedResults(Label), getAllLabels).post(createLabel);
 
-router
-  .route("/:id")
-  .get(getLabelById)
+router.route("/:id").get(getLabelById);
 
 module.exports = router;

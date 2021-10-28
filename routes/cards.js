@@ -15,7 +15,7 @@ const {
   addLabelTodoCard,
   attachmentCardTodo,
   removeAttachTodoCard,
-  searchTaskByOptions
+  searchTaskByOptions,
 } = require("../controllers/cards.controller");
 
 const Card = require("../models/Card");
@@ -26,11 +26,9 @@ const { protect } = require("../middlewares/auth");
 
 router.use(protect);
 
-router.route("/").get(advancedResults(Card), getAllCards).post(createCards)
+router.route("/").get(advancedResults(Card), getAllCards).post(createCards);
 
-router
-  .route('/search')
-  .get(searchTaskByOptions)
+router.route("/search").get(searchTaskByOptions);
 router.route("/:slug").get(advancedResults(Card), getCardBySlug);
 
 router.route("/:id").get(getCardById).patch(updateSingleCardById).delete(removeSingleCardById);
@@ -55,9 +53,7 @@ router.route("/:id/attachment").patch(
   attachmentCardTodo
 );
 
-router
-  .route("/:id/attachment/:attachId")
-  .delete(removeAttachTodoCard)
+router.route("/:id/attachment/:attachId").delete(removeAttachTodoCard);
 
 // router.get("/search/by", temperatureFilter);
 // router.get("/sheet", moduleExcel);

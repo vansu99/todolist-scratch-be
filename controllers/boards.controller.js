@@ -66,7 +66,9 @@ exports.createBoard = asyncHandler(async (req, res, next) => {
       await TeamWork.create({
         ownerId: ownerProject._id,
         boardId: board._id,
-        member: [{ id: ownerProject._id, username: ownerProject.username, completed: [], failed: [] }],
+        member: [
+          { id: ownerProject._id, username: ownerProject.username, completed: 0, failed: 0 },
+        ],
       });
     }
     return res.status(201).json({ board });
@@ -98,7 +100,11 @@ exports.updateBoardById = asyncHandler(async (req, res, next) => {
 exports.addColumnIdToBoard = asyncHandler(async (req, res, next) => {
   try {
     const id = req.params.id;
-    const result = await Board.findOneAndUpdate({ _id: id }, { $push: { columnId: req.body.value } }, { new: true });
+    const result = await Board.findOneAndUpdate(
+      { _id: id },
+      { $push: { columnId: req.body.value } },
+      { new: true }
+    );
     res.json({ result });
   } catch (error) {
     next(error);
@@ -178,7 +184,10 @@ exports.getActivityByBoardId = asyncHandler(async (req, res, next) => {
     if (!board) return res.status(404).json({ msg: "Board không tồn tại" });
     const query = { boardId: _id };
     if (_last) query._id = { $lt: _last };
-    const activities = await Activity.find(query, null, { limit: _limit + 1, sort: { _id: "desc" } });
+    const activities = await Activity.find(query, null, {
+      limit: _limit + 1,
+      sort: { _id: "desc" },
+    });
     res.append("X-Has-More", activities.length === _limit + 1 ? "true" : "false");
     res.status(200).send(activities.slice(0, _limit));
   } catch (error) {
@@ -238,7 +247,9 @@ exports.searchBoards = asyncHandler(async (req, res, next) => {
     const boards = await Board.find({ title: regex, userId: req.user });
 
     if (boards.length === 0) {
-      res.status(200).json({ msg: "We couldn't find any cards or boards that matched your search." });
+      res
+        .status(200)
+        .json({ msg: "We couldn't find any cards or boards that matched your search." });
     } else {
       res.status(200).json({ boards });
     }
@@ -268,8 +279,16 @@ exports.addMemberProject = asyncHandler(async (req, res, next) => {
         },
         { new: true }
       ).populate("member");
-      await User.findOneAndUpdate({ _id: userId }, { $addToSet: { boardId: board._id } }, { new: true });
-      await TeamWork.findOneAndUpdate({ boardId: board.id }, { $addToSet: { member: memberAssigned } }, { new: true });
+      await User.findOneAndUpdate(
+        { _id: userId },
+        { $addToSet: { boardId: board._id } },
+        { new: true }
+      );
+      await TeamWork.findOneAndUpdate(
+        { boardId: board.id },
+        { $addToSet: { member: memberAssigned } },
+        { new: true }
+      );
       return res.status(200).json({ board: memberOfBoard });
     }
   } catch (error) {
@@ -301,7 +320,11 @@ exports.removeMemberProject = asyncHandler(async (req, res, next) => {
         { new: true }
       ).populate("member");
 
-      await User.findOneAndUpdate({ _id: memberIdRemove }, { $pull: { boardId: board._id } }, { new: true });
+      await User.findOneAndUpdate(
+        { _id: memberIdRemove },
+        { $pull: { boardId: board._id } },
+        { new: true }
+      );
 
       if (index !== -1) {
         newArr.splice(index, 1);

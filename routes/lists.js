@@ -8,7 +8,7 @@ const {
   updateSingleListById,
   addCardIdToList,
   removeCardIdToList,
-  removeSingleListById
+  removeSingleListById,
 } = require("../controllers/lists.controller");
 
 const List = require("../models/Lists");
@@ -19,28 +19,14 @@ const { protect } = require("../middlewares/auth");
 
 router.use(protect);
 
-router
-  .route("/")
-  .get(advancedResults(List), getAllLists)
-  .post(createList)
+router.route("/").get(advancedResults(List), getAllLists).post(createList);
 
 router.route("/:slug").get(advancedResults(List), getListBySlug);
 
-router
-  .route("/:id")
-  .get(getListById)
-  .patch(updateSingleListById)
-  .delete(removeSingleListById)
+router.route("/:id").get(getListById).patch(updateSingleListById).delete(removeSingleListById);
 
-router
-  .route("/:id/cards")
-  .post(addCardIdToList)
-  .get(getCardByListId)
+router.route("/:id/cards").post(addCardIdToList).get(getCardByListId);
 
-router
-  .route("/:id/cards/:cardId")
-  .delete(removeCardIdToList)
-
-
+router.route("/:id/cards/:cardId").delete(removeCardIdToList);
 
 module.exports = router;

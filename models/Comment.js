@@ -20,7 +20,7 @@ const CommentsSchema = new mongoose.Schema(
       ref: "User",
     },
     cardId: mongoose.Types.ObjectId,
-    cardUserId: mongoose.Types.ObjectId
+    cardUserId: mongoose.Types.ObjectId,
   },
   { toJSON: { virtuals: true }, toObject: { virtuals: true }, timestamps: true }
 );

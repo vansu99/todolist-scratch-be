@@ -1,11 +1,4 @@
-module.exports = async (
-  req,
-  res,
-  model,
-  populates = [],
-  status = "",
-  or = []
-) => {
+module.exports = async (req, res, model, populates = [], status = "", or = []) => {
   req.query.status = status;
 
   const reqQuery = { ...req.query };
@@ -14,10 +7,7 @@ module.exports = async (
   removeFields.forEach((param) => delete reqQuery[param]);
 
   let queryStr = JSON.stringify(reqQuery);
-  queryStr = queryStr.replace(
-    /\b(gt|gte|lt|lte|in)\b/g,
-    (match) => `$${match}`
-  );
+  queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, (match) => `$${match}`);
 
   query = model.find(JSON.parse(queryStr));
 

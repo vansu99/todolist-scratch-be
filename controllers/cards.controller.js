@@ -11,6 +11,7 @@ const Comment = require("../models/Comment");
 const Completed = require("../models/Completed");
 const User = require("../models/User");
 const TeamTodo = require("../models/TeamTodo");
+const TeamWork = require("../models/TeamTodo");
 
 // @des GET ALL CARDS
 // @route GET /api/cards
@@ -48,11 +49,31 @@ exports.createCards = asyncHandler(async (req, res, next) => {
     const card = await Card.create({ ...req.body });
     if (card._id) {
       const boardId = card.boardId;
-      await Lists.findOneAndUpdate({ _id: card.list }, { $addToSet: { cards: card._id } }, { new: true });
+      await Lists.findOneAndUpdate(
+        { _id: card.list },
+        { $addToSet: { cards: card._id } },
+        { new: true }
+      );
       await Completed.findOneAndUpdate(
         { boardId },
         {
           $addToSet: { cardFailed: card._id },
+        },
+        { new: true }
+      );
+      const teams = await TeamWork.findOne({boardId});
+      const failed = teams.member.reduce((acc, curr) => {
+        if(curr.id.toString() === req.user) {
+          curr.failed += 1
+        }
+        acc.push(curr)
+        return acc
+      }, [])
+
+      await TeamWork.findOneAndUpdate(
+        { boardId },
+        {
+          $set: { member: [...failed] },
         },
         { new: true }
       );
@@ -400,9 +421,17 @@ exports.removeSingleCardById = asyncHandler(async (req, res, next) => {
       const failed = mem.failed;
 
       if (failed.findIndex((num) => num._id === id) !== -1) {
-        await TeamTodo.updateOne({}, { $pull: { "member.$[].failed": { _id: id } } }, { multi: true });
+        await TeamTodo.updateOne(
+          {},
+          { $pull: { "member.$[].failed": { _id: id } } },
+          { multi: true }
+        );
       } else if (completed.findIndex((num) => num._id === id) !== -1) {
-        await TeamTodo.updateOne({}, { $pull: { "member.$[].completed": { _id: id } } }, { multi: true });
+        await TeamTodo.updateOne(
+          {},
+          { $pull: { "member.$[].completed": { _id: id } } },
+          { multi: true }
+        );
       }
     });
 
