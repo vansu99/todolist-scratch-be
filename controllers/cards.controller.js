@@ -118,9 +118,9 @@ exports.updateSingleCardById = asyncHandler(async (req, res, next) => {
     const teamwork = await TeamTodo.findOne({ boardId: result.boardId });
     const memberTeamWork = teamwork.member;
     memberTeamWork.forEach(async (mem) => {
-      if (result.completed) {
+      if (result.completeQd) {
         await TeamTodo.findOneAndUpdate(
-          { boardId: result.boardId },
+          { boardId: result.boardIQd },
           { $pull: { "member.$[].failed": { _id: id } } },
           { multi: true }
         );
