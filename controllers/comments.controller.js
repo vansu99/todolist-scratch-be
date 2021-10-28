@@ -54,7 +54,11 @@ exports.createComment = asyncHandler(async (req, res, next) => {
 exports.updateComment = asyncHandler(async (req, res, next) => {
   try {
     const { content } = req.body;
-    const comment = await Comments.findOneAndUpdate({ _id: req.params.id, user: req.user }, { content }, { new: true });
+    const comment = await Comments.findOneAndUpdate(
+      { _id: req.params.id, user: req.user },
+      { content },
+      { new: true }
+    );
 
     res.status(200).json({ comment, msg: "Cập nhật thành công." });
   } catch (error) {
@@ -96,7 +100,7 @@ exports.likeComment = asyncHandler(async (req, res, next) => {
         username: user.username,
         avatar: user.image,
       },
-      receiver: likeComment.user
+      receiver: likeComment.user,
     });
 
     return res.status(200).json({ likeComment });
@@ -127,7 +131,10 @@ exports.unLikeComment = asyncHandler(async (req, res, next) => {
 
 exports.removeComment = asyncHandler(async (req, res, next) => {
   try {
-    const removeComment = await Comments.findOneAndRemove({ _id: req.params.id, $or: [{ user: req.user }] });
+    const removeComment = await Comments.findOneAndRemove({
+      _id: req.params.id,
+      $or: [{ user: req.user }],
+    });
     await Card.findOneAndUpdate(
       { _id: removeComment.cardId },
       {

@@ -30,7 +30,7 @@ exports.createList = asyncHandler(async (req, res, next) => {
   try {
     const boardId = req.body.boardId;
     const board = await Boards.findOne({ _id: boardId, userId: req.user });
-    if(!board) return res.status(404).send();
+    if (!board) return res.status(404).send();
     const list = await List.create({ ...req.body });
     return res.status(201).json({ list });
   } catch (error) {
@@ -82,7 +82,6 @@ exports.getCardByListId = asyncHandler(async (req, res, next) => {
     if (!list) throw createError(404, "list of id not exist");
     const card = await Card.find({ list: id });
     return res.status(200).json({ card });
-
   } catch (error) {
     next(error);
   }
@@ -114,9 +113,7 @@ exports.removeSingleListById = asyncHandler(async (req, res, next) => {
     const id = req.params.id;
     await List.findByIdAndRemove(id);
     const cards = await Card.find({ list: id });
-    cards.forEach(async card => (
-      await Card.deleteOne({ _id: card._id })
-    ));
+    cards.forEach(async (card) => await Card.deleteOne({ _id: card._id }));
 
     res.status(200).json({ msg: "Xóa thành công" });
   } catch (error) {
@@ -132,7 +129,11 @@ exports.removeSingleListById = asyncHandler(async (req, res, next) => {
 exports.addCardIdToList = asyncHandler(async (req, res, next) => {
   try {
     const id = req.params.id;
-    const result = await List.findOneAndUpdate({ _id: id }, { $push: { cards: req.body.value } }, { new: true });
+    const result = await List.findOneAndUpdate(
+      { _id: id },
+      { $push: { cards: req.body.value } },
+      { new: true }
+    );
     res.json({ result });
   } catch (error) {
     next(error);

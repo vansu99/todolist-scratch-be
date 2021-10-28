@@ -25,7 +25,7 @@ const columnsRoutes = require("./routes/columns");
 const boardsRoutes = require("./routes/boards");
 const commentsRoutes = require("./routes/comments");
 const completedRoutes = require("./routes/completedTodo");
-const teamworkRoutes = require('./routes/teamwork');
+const teamworkRoutes = require("./routes/teamwork");
 const activityRoutes = require("./routes/activity");
 const notificationRoutes = require("./routes/notification");
 

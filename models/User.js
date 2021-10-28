@@ -65,7 +65,7 @@ const UserSchema = new mongoose.Schema(
       },
     ],
     socialId: {
-      type: String
+      type: String,
     },
     resetTokenExpiration: String,
     passwordResetExpires: Date,

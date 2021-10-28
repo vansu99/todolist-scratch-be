@@ -10,7 +10,7 @@ const TeamWorkSchema = new mongoose.Schema(
     boardId: { type: mongoose.Schema.ObjectId, ref: "Board" },
     member: {
       type: Array,
-      default: []
+      default: [],
     },
   },
   { timestamps: true }
