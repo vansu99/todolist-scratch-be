@@ -278,7 +278,7 @@ exports.addMemberProject = asyncHandler(async (req, res, next) => {
           $addToSet: { member: userId },
         },
         { new: true }
-      ).populate("member");
+      ).populate("member").populate("userId");
       await User.findOneAndUpdate(
         { _id: userId },
         { $addToSet: { boardId: board._id } },
