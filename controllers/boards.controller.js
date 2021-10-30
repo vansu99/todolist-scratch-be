@@ -286,7 +286,7 @@ exports.addMemberProject = asyncHandler(async (req, res, next) => {
       );
       await TeamWork.findOneAndUpdate(
         { boardId: board.id },
-        { $addToSet: { member: memberAssigned } },
+        { $addToSet: { member: { id: memberAssigned.id, username: memberAssigned.name, completed: 0, failed: 0 } } },
         { new: true }
       );
       return res.status(200).json({ board: memberOfBoard });
