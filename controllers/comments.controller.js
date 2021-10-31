@@ -1,8 +1,8 @@
 const Comments = require("../models/Comment");
-const Notification = require("../models/Notification");
 const Card = require("../models/Card");
 const asyncHandler = require("../middlewares/async");
 const socketHandler = require("../socketServer");
+const Notification = require("../models/Notification");
 const { sendCommentNotification } = require("../utils/controllerUtils");
 
 // @desc    Create Comment

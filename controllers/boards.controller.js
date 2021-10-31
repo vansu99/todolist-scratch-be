@@ -318,7 +318,7 @@ exports.removeMemberProject = asyncHandler(async (req, res, next) => {
           $pull: { member: memberIdRemove },
         },
         { new: true }
-      ).populate("member");
+      ).populate("member").populate("userId");
 
       await User.findOneAndUpdate(
         { _id: memberIdRemove },
