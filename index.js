@@ -12,6 +12,8 @@ const config = require("./configs/config");
 const SocketServer = require("./socketServer");
 const jwt = require("jsonwebtoken");
 const passport = require("passport");
+const cronJob = require('./utils/cronTask')
+
 
 DBConnection();
 
@@ -19,14 +21,14 @@ DBConnection();
 const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/user");
 const cardsRoutes = require("./routes/cards");
-const labelsRoutes = require("./routes/labels");
 const listsRoutes = require("./routes/lists");
-const columnsRoutes = require("./routes/columns");
+const labelsRoutes = require("./routes/labels");
 const boardsRoutes = require("./routes/boards");
+const columnsRoutes = require("./routes/columns");
 const commentsRoutes = require("./routes/comments");
-const completedRoutes = require("./routes/completedTodo");
 const teamworkRoutes = require("./routes/teamwork");
 const activityRoutes = require("./routes/activity");
+const completedRoutes = require("./routes/completedTodo");
 const notificationRoutes = require("./routes/notification");
 
 const app = express();
@@ -98,6 +100,9 @@ app.use(versionApi("activities"), activityRoutes);
 app.use(versionApi("notification"), notificationRoutes);
 
 app.use(errorHandler);
+
+// cron task
+cronJob()
 
 module.exports = http.listen(config.PORT, () => {
   console.log(`Server running in ${config.ENV} mode on port ${config.PORT}`);
