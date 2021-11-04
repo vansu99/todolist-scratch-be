@@ -31,9 +31,9 @@ async function cronJob() {
           socketHandler.sendNotification(req, {
             ...notification.toObject(),
             sender: {
-              _id: '6051cf7fae8b0629c4a32ccd',
+              _id: card.userId,
               username: 'System',
-              avatar: 'shorturl.at/zDMNS'
+              avatar: 'https://media.wired.com/photos/5b6df22751297c21002b4536/1:1/w_1272,h_1272,c_limit/HackerBot.jpg'
             },
             receiver: card.userId,
           });

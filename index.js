@@ -52,6 +52,9 @@ if (config.ENV === "development") {
   app.use(morgan("dev"));
 }
 
+// cron task
+cronJob()
+
 // Socket
 const http = require("http").createServer(app);
 const io = require("socket.io")(http, {
@@ -100,9 +103,6 @@ app.use(versionApi("activities"), activityRoutes);
 app.use(versionApi("notification"), notificationRoutes);
 
 app.use(errorHandler);
-
-// cron task
-cronJob()
 
 module.exports = http.listen(config.PORT, () => {
   console.log(`Server running in ${config.ENV} mode on port ${config.PORT}`);

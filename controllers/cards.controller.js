@@ -47,7 +47,9 @@ exports.createCards = asyncHandler(async (req, res, next) => {
     const board = await Boards.findOne({ _id: boardId, userId: req.user });
     if (!board) return res.status(404).send();
 
-    const card = await Card.create({ ...req.body, member: [req.user] });
+    const card = await Card.create({ ...req.body, member: [req.user] })
+    card.populate('member').execPopulate()
+    
     if (card._id) {
       const boardId = card.boardId;
       await Lists.findOneAndUpdate(
