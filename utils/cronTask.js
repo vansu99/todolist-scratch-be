@@ -31,7 +31,7 @@ async function cronJob() {
           socketHandler.sendNotification(req, {
             ...notification.toObject(),
             sender: {
-              _id: 'system001',
+              _id: '6051cf7fae8b0629c4a32ccd',
               username: 'System',
               avatar: 'shorturl.at/zDMNS'
             },
