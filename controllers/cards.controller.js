@@ -217,16 +217,18 @@ exports.updateStatusCardById = asyncHandler(async (req, res, next) => {
     const result = await Card.findOne({ _id: id }).populate("member")
 
     const teamwork = await TeamTodo.findOne({ boardId: result.boardId });
-    // neu task completed thi moi set
+
       const resultTeam = teamwork.member.filter(mem => {
         return result.member.filter(function(item){
           return item._id.toString() === mem.id.toString();
         }).length !== 0
       }).reduce((acc, curr) => {
         if(req.body.completed) {
+          console.log('completed')
           curr.completed += 1;
           curr.failed === 0 ? curr.failed = 0 : curr.failed -= 1
         }else {
+          console.log('failed')
           curr.failed += 1;
           curr.completed -= 1;
         }
