@@ -9,6 +9,7 @@ const {
   addCardIdToList,
   removeCardIdToList,
   removeSingleListById,
+  moveIndexList
 } = require("../controllers/lists.controller");
 
 const List = require("../models/Lists");
@@ -24,6 +25,8 @@ router.route("/").get(advancedResults(List), getAllLists).post(createList);
 router.route("/:slug").get(advancedResults(List), getListBySlug);
 
 router.route("/:id").get(getListById).patch(updateSingleListById).delete(removeSingleListById);
+
+router.route('/move/:id').put(moveIndexList)
 
 router.route("/:id/cards").post(addCardIdToList).get(getCardByListId);
 

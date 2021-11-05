@@ -326,6 +326,8 @@ exports.removeMemberProject = asyncHandler(async (req, res, next) => {
         { new: true }
       );
 
+      const card = await Cards.findOneAndUpdate({ boardId: id }, { $pull: { member: memberIdRemove }}, {new: true});
+
       if (index !== -1) {
         newArr.splice(index, 1);
         await TeamWork.findOneAndUpdate(
@@ -337,7 +339,7 @@ exports.removeMemberProject = asyncHandler(async (req, res, next) => {
         );
       }
 
-      return res.status(200).json({ board: memberOfBoard });
+      return res.status(200).json({ board: memberOfBoard, cardId: card._id });
     }
   } catch (error) {
     next(error);

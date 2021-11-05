@@ -5,6 +5,7 @@ const Card = require("../models/Card");
 const Board = require("../models/Boards");
 const moment = require("moment");
 const Boards = require("../models/Boards");
+const moveIndex = require('../utils/moveIndex')
 
 // @des GET ALL LISTS
 // @route GET /api/lists
@@ -22,6 +23,28 @@ exports.getAllLists = asyncHandler(async (req, res, next) => {
     next(error);
   }
 });
+
+exports.moveIndexList = asyncHandler(async (req, res, next) => {
+  try {
+    const { boardId, oldIndex, newIndex } = req.body
+    const lists = await List.find({ boardId });
+
+    if (!lists) {
+      throw createError.NotFound("List not exist");
+    } else {
+      moveIndex(lists, oldIndex, newIndex)
+      await List.deleteMany({ boardId })
+      for(let list of lists) {
+        console.log(list)
+        const result = new List({ ...list })
+        await result.save()
+      }
+      res.status(200).json({ msg: 'success' });
+    }
+  } catch (error) {
+    next(error);
+  }
+})
 
 // @desc    Create lists
 // @route   POST /api/lists

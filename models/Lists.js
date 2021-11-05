@@ -6,7 +6,6 @@ const ListsSchema = new mongoose.Schema(
     title: {
       type: String,
       trim: true,
-      required: [true, "Title lists is requied"],
     },
     boardId: {
       type: mongoose.Schema.ObjectId,
