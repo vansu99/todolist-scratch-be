@@ -16,6 +16,7 @@ const {
   attachmentCardTodo,
   removeAttachTodoCard,
   searchTaskByOptions,
+  updateStatusCardById
 } = require("../controllers/cards.controller");
 
 const Card = require("../models/Card");
@@ -34,6 +35,8 @@ router.route("/:slug").get(advancedResults(Card), getCardBySlug);
 router.route("/:id").get(getCardById).patch(updateSingleCardById).delete(removeSingleCardById);
 
 router.route("/:id/checklist").patch(addCheckListTodoCard);
+
+router.route("/status/:id").post(updateStatusCardById);
 
 router.route("/:id/checklist/:checklistId").delete(removeCheckListTodoCard);
 

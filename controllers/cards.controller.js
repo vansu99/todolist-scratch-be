@@ -49,7 +49,7 @@ exports.createCards = asyncHandler(async (req, res, next) => {
 
     const card = await Card.create({ ...req.body, member: [req.user] })
     card.populate('member').execPopulate()
-    
+
     if (card._id) {
       const boardId = card.boardId;
       await Lists.findOneAndUpdate(
@@ -141,30 +141,31 @@ exports.updateSingleCardById = asyncHandler(async (req, res, next) => {
       });
     const teamwork = await TeamTodo.findOne({ boardId: result.boardId });
 
-    const resultTeam = teamwork.member.filter(mem => {
-      return result.member.filter(function(item){
-        return item._id.toString() === mem.id.toString();
-    }).length !== 0
-    }).reduce((acc, curr) => {
-      if(req.body.completed) {
-        curr.completed += 1;
-        curr.failed === 0 ? curr.failed = 0 : curr.failed -= 1
-      }else {
-        curr.failed += 1;
-        curr.completed -= 1;
-      }
-      acc.push(curr)
-      return acc
-    }, [])
+    // if(result.completed) {
+    //   const resultTeam = teamwork.member.filter(mem => {
+    //     return result.member.filter(function(item){
+    //       return item._id.toString() === mem.id.toString();
+    //     }).length !== 0
+    //   }).reduce((acc, curr) => {
+    //     if(req.body.completed) {
+    //       curr.completed += 1;
+    //       curr.failed === 0 ? curr.failed = 0 : curr.failed -= 1
+    //     }else {
+    //       curr.failed += 1;
+    //       curr.completed -= 1;
+    //     }
+    //     acc.push(curr)
+    //     return acc
+    //   }, [])
 
-    await TeamTodo.findOneAndUpdate(
-      { boardId: result.boardId },
-      {
-        $set: { member: [...new Map([...teamwork.member, ...resultTeam].map(item => [item['id'], item])).values()] },
-      },
-      { new: true }
-    );
-
+    //   await TeamTodo.findOneAndUpdate(
+    //     { boardId: result.boardId },
+    //     {
+    //       $set: { member: [...new Map([...teamwork.member, ...resultTeam].map(item => [item['id'], item])).values()] },
+    //     },
+    //     { new: true }
+    //   );
+    // }
 
     if (result.completed) {
       // task hoàn thành -> add cardId vào completed và xóa ở failed
@@ -205,6 +206,48 @@ exports.updateSingleCardById = asyncHandler(async (req, res, next) => {
     return;
   }
 });
+
+// @desc    Update Status Single Card By ID
+// @route   POST /api/cards/status/:id
+// @access  Private/User
+// @note    route parameters
+exports.updateStatusCardById = asyncHandler(async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const result = await Card.findOne({ _id: id }).populate("member")
+
+    const teamwork = await TeamTodo.findOne({ boardId: result.boardId });
+    // neu task completed thi moi set
+      const resultTeam = teamwork.member.filter(mem => {
+        return result.member.filter(function(item){
+          return item._id.toString() === mem.id.toString();
+        }).length !== 0
+      }).reduce((acc, curr) => {
+        if(req.body.completed) {
+          curr.completed += 1;
+          curr.failed === 0 ? curr.failed = 0 : curr.failed -= 1
+        }else {
+          curr.failed += 1;
+          curr.completed -= 1;
+        }
+        acc.push(curr)
+        return acc
+      }, [])
+
+      await TeamTodo.findOneAndUpdate(
+        { boardId: result.boardId },
+        {
+          $set: { member: [...new Map([...teamwork.member, ...resultTeam].map(item => [item['id'], item])).values()] },
+        },
+        { new: true }
+      );
+
+    res.status(200).json({ msg: 'success' });
+  } catch (error) {
+    next(createError(400, "Invalid Card ID"));
+    return;
+  }
+})
 
 // @desc    Add Check List Single Card By ID
 // @route   POST /api/cards/:id/checklist
