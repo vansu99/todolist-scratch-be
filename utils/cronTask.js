@@ -13,8 +13,8 @@ async function cronJob() {
     } else if(card.date !== null && !card.completed) {
       const date = moment(card.date).format('DD/MM/YYYY');
       const today = moment().format('DD/MM/YYYY');
-      testJob = cron.schedule(`30 23 * * 0-6`, async () => {
-        // chay moi ngay vao luc 23h30p de check neu ngay hien tai = voi ngay due date => thong bao
+      testJob = cron.schedule(`00 00 * * 0-6`, async () => {
+        // chay moi ngay vao luc 00h00 de check neu ngay hien tai = voi ngay due date => thong bao
         if(today === date) {
           console.log('run cron day')
           const notification = new Notification({
