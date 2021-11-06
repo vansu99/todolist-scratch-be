@@ -6,6 +6,8 @@ const Board = require("../models/Boards");
 const moment = require("moment");
 const Boards = require("../models/Boards");
 const moveIndex = require('../utils/moveIndex')
+const Teamwork = require('../models/TeamTodo')
+const Completed = require('../models/Completed')
 
 // @des GET ALL LISTS
 // @route GET /api/lists
@@ -134,9 +136,50 @@ exports.updateSingleListById = asyncHandler(async (req, res, next) => {
 exports.removeSingleListById = asyncHandler(async (req, res, next) => {
   try {
     const id = req.params.id;
-    await List.findByIdAndRemove(id);
-    const cards = await Card.find({ list: id });
-    cards.forEach(async (card) => await Card.deleteOne({ _id: card._id }));
+    const list = await List.findByIdAndRemove(id);
+    const cards = await Card.find({ list: id }).populate("member");
+    const teamwork = await Teamwork.findOne({ boardId: list.boardId });
+    cards.forEach(async (card) => {
+      await Card.deleteOne({ _id: card._id });
+      // xoa o completed
+      await Completed.findOneAndUpdate(
+        { boardId: card.boardId },
+        {
+          $pull: { cardCompleted: card.id },
+        },
+        { new: true }
+      );
+      await Completed.findOneAndUpdate(
+        { boardId: card.boardId },
+        {
+          $pull: { cardFailed: card.id },
+        },
+        { new: true }
+      );
+      // xoa o teamwork
+      const resultTeam = teamwork.member.filter(mem => {
+        return card.member.filter(function(item){
+          return item._id.toString() === mem.id.toString();
+        }).length !== 0
+      }).reduce((acc, curr) => {
+        curr.completed = 0
+        curr.failed = 0
+
+        acc.push(curr)
+        return acc
+      }, [])
+
+      await Teamwork.findOneAndUpdate(
+        { boardId: card.boardId },
+        {
+          $set: {
+            member: [...new Map([...teamwork.member, ...resultTeam].map(item => [item['id'], item])).values()]
+          },
+        },
+        { new: true }
+      );
+
+    });
 
     res.status(200).json({ msg: "Xóa thành công" });
   } catch (error) {
