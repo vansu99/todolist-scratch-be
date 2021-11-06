@@ -24,6 +24,5 @@
 module.exports.sendNotification = (req, notification) => {
   const io = req.app.get("socketio");
   const receiverId = String(notification.receiver);
-  console.log(receiverId)
   io.sockets.in(receiverId).emit("newNotification", notification);
 };

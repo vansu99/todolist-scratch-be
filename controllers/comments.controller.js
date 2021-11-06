@@ -4,6 +4,7 @@ const asyncHandler = require("../middlewares/async");
 const socketHandler = require("../socketServer");
 const Notification = require("../models/Notification");
 const { sendCommentNotification } = require("../utils/controllerUtils");
+const io = require('socket.io')
 
 // @desc    Create Comment
 // @route   POST /api/comments

@@ -7,7 +7,8 @@ const CommentsSchema = new mongoose.Schema(
     },
     tag: Object,
     reply: {
-      type: mongoose.Types.ObjectId,
+      type: Array,
+      default: []
     },
     likes: [
       {

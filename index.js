@@ -12,7 +12,10 @@ const config = require("./configs/config");
 const SocketServer = require("./socketServer");
 const jwt = require("jsonwebtoken");
 const passport = require("passport");
-const cronJob = require('./utils/cronTask')
+const cronJob = require('./utils/cronTask');
+const Comment = require('./models/Comment')
+const Card = require('./models/Card')
+
 
 
 DBConnection();
@@ -60,30 +63,58 @@ const http = require("http").createServer(app);
 const io = require("socket.io")(http, {
   cors: {
     origin: "http://localhost:8080",
-    methods: ["GET", "POST"],
+    methods: ["GET", "POST", "PATCH", "PUT"],
   },
 });
 app.set("socketio", io);
 
-io.use((socket, next) => {
-  const token = socket.handshake.query && socket.handshake.query.token;
-  if (token) {
-    try {
-      const user = jwt.decode(token, process.env.JWT_SECRET);
-      if (!user) {
-        return next(new Error("Not authorized."));
-      }
-      socket.user = user;
-      return next();
-    } catch (err) {
-      next(err);
+// io.use((socket, next) => {
+//   const token = socket.handshake.query && socket.handshake.query.token;
+//   if (token) {
+//     try {
+//       const user = jwt.decode(token, process.env.JWT_SECRET);
+//       if (!user) {
+//         return next(new Error("Not authorized."));
+//       }
+//       socket.user = user;
+//       return next();
+//     } catch (err) {
+//       next(err);
+//     }
+//   } else {
+//     return next(new Error("Not authorized."));
+//   }
+// })
+io.on("connection", (socket) => {
+  //socket.join(socket.user.id);
+  socket.on('createComment', async msg => {
+    const {user, cardId, content, reply, send} = msg
+    let card = undefined;
+    const newComment = new Comment({
+      user, cardId, content
+    })
+    if(send === 'replyComment') {
+      const { _id } = newComment;
+      const comment = await Comment.findOne({_id: reply}).populate('user');
+      comment.reply.push({ _id, user: comment.user, content, cardId, createdAt: new Date() });
+
+      await comment.save();
+      io.emit('sendReplyComment', { cardId, reply: comment.reply, id: comment._id });
+    } else {
+      await Card.findOneAndUpdate(
+        { _id: cardId },
+        {
+          $push: {
+            comments: newComment._id,
+          },
+        },
+        { new: true }
+      );
+
+      await newComment.save();
+      io.emit('sendComment', newComment);
     }
-  } else {
-    return next(new Error("Not authorized."));
-  }
-}).on("connection", (socket) => {
-  socket.join(socket.user.id);
-  //SocketServer(socket);
+  })
 });
 
 // Moute routers
