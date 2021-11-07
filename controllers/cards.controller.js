@@ -533,7 +533,7 @@ exports.attachmentCardTodo = asyncHandler(async (req, res, next) => {
         $push: { attachments: { ...req.body, item: response.secure_url } },
       },
       { new: true }
-    );
+    ).populate("member");
 
     res.status(201).json({ card });
   } catch (err) {
