@@ -162,8 +162,11 @@ exports.removeSingleListById = asyncHandler(async (req, res, next) => {
           return item._id.toString() === mem.id.toString();
         }).length !== 0
       }).reduce((acc, curr) => {
-        curr.completed = 0
-        curr.failed = 0
+        if(card.completed) {
+          curr.completed -= 1
+        } else {
+          curr.failed -= 1
+        }
 
         acc.push(curr)
         return acc
