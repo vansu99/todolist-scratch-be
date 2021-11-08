@@ -9,13 +9,12 @@ const helmet = require("helmet");
 const errorHandler = require("./middlewares/error"); // Handler Errors
 const DBConnection = require("./configs/db");
 const config = require("./configs/config");
-const SocketServer = require("./socketServer");
-const jwt = require("jsonwebtoken");
 const passport = require("passport");
 const cronJob = require('./utils/cronTask');
 const Comment = require('./models/Comment')
 const Card = require('./models/Card')
-
+const User = require('./models/User')
+const Notification = require('./models/Notification')
 
 
 DBConnection();
@@ -68,31 +67,24 @@ const io = require("socket.io")(http, {
 });
 app.set("socketio", io);
 
-// io.use((socket, next) => {
-//   const token = socket.handshake.query && socket.handshake.query.token;
-//   if (token) {
-//     try {
-//       const user = jwt.decode(token, process.env.JWT_SECRET);
-//       if (!user) {
-//         return next(new Error("Not authorized."));
-//       }
-//       socket.user = user;
-//       return next();
-//     } catch (err) {
-//       next(err);
-//     }
-//   } else {
-//     return next(new Error("Not authorized."));
-//   }
-// })
-io.on("connection", (socket) => {
-  //socket.join(socket.user.id);
+io.on("connection", async (socket) => {
+  // const userList = await User.find({});
+  // const getUser = id => {
+  //   const result = userList.find(user => String(user._id) === id)
+  //   return {
+  //     ...result,
+  //     socID: socket.id
+  //   }
+  // }
+
+  // comments
   socket.on('createComment', async msg => {
     const {user, cardId, content, reply, send} = msg
     let card = undefined;
     const newComment = new Comment({
       user, cardId, content
-    })
+    });
+    const userInfo = await User.findOne({ _id: user })
     if(send === 'replyComment') {
       const { _id } = newComment;
       const comment = await Comment.findOne({_id: reply}).populate('user');
@@ -112,9 +104,47 @@ io.on("connection", (socket) => {
       );
 
       await newComment.save();
+
+      const newData = {
+        user: userInfo,
+        type: 'comment'
+      }
       io.emit('sendComment', newComment);
+      io.emit('newNotification', newData)
     }
   })
+
+  // like comment
+  socket.on('likeComment', async data => {
+    const { cardId, comment, user } = data
+    // gui lai thong bao
+
+    const cmt = await Comment.find({ _id: comment._id, likes: user._id });
+    if (cmt.length > 0) return res.status(400).json({ msg: "Bạn đã like nhận xét này." });
+    const likeComment = await Comment.findOneAndUpdate(
+      { _id: comment._id },
+      {
+        $push: { likes: user._id },
+      },
+      { new: true }
+    );
+    const notification = new Notification({
+      sender: user._id,
+      receiver: likeComment.user,
+      notificationType: "like",
+      date: Date.now(),
+      notificationData: {
+        cardId,
+      },
+    });
+    await notification.save();
+    const newData = {
+      ...data,
+      type: 'like'
+    }
+    io.emit('newNotification', newData)
+  })
+
 });
 
 // Moute routers

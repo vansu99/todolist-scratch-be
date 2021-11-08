@@ -7,6 +7,8 @@ const Columns = require("../models/Columns");
 const CompletedTodo = require("../models/Completed");
 const Activity = require("../models/Activity");
 const TeamWork = require("../models/TeamTodo");
+const Notification = require("../models/Notification");
+const socketHandler = require("../socketServer");
 
 // @desc    GET Boards
 // @route   GET /api/boards
@@ -267,7 +269,7 @@ exports.addMemberProject = asyncHandler(async (req, res, next) => {
     const id = req.params.id;
     const userId = req.body.value;
     const memberAssigned = req.body.memberInfor;
-    const board = await Board.findById(id);
+    const board = await Board.findById(id).populate('userId');
     const memberBoard = board.member;
     if (memberBoard.includes(userId)) {
       return res.status(400).json({ msg: "User đã được thêm vào dự án." });
@@ -289,6 +291,7 @@ exports.addMemberProject = asyncHandler(async (req, res, next) => {
         { $addToSet: { member: { id: memberAssigned.id, username: memberAssigned.name, completed: 0, failed: 0 } } },
         { new: true }
       );
+
       return res.status(200).json({ board: memberOfBoard });
     }
   } catch (error) {
