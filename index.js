@@ -68,15 +68,6 @@ const io = require("socket.io")(http, {
 app.set("socketio", io);
 
 io.on("connection", async (socket) => {
-  // const userList = await User.find({});
-  // const getUser = id => {
-  //   const result = userList.find(user => String(user._id) === id)
-  //   return {
-  //     ...result,
-  //     socID: socket.id
-  //   }
-  // }
-
   // comments
   socket.on('createComment', async msg => {
     const {user, cardId, content, reply, send} = msg
