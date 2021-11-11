@@ -453,10 +453,16 @@ exports.removeSingleCardById = asyncHandler(async (req, res, next) => {
     const teamwork = await TeamTodo.findOne({ boardId });
 
     const memberTeamWork = teamwork.member.reduce((acc, curr) => {
-      if (curr.id.toString() === req.user && !card.completed) {
+      if (curr.id.toString() === req.user && card.completed === false) {
+        console.log('del',card.completed)
         curr.failed === 0 ? curr.failed = 0 : curr.failed -=1;
+        //curr.completed === 0 ? curr.completed = 0 : curr.completed -= 1;
+      }
+
+      if(curr.id.toString() === req.user && card.completed) {
         curr.completed === 0 ? curr.completed = 0 : curr.completed -= 1;
       }
+
       acc.push(curr);
       return acc;
     }, []);
