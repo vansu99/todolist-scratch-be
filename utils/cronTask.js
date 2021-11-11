@@ -32,7 +32,7 @@ async function cronJob() {
           <p><b>Lưu ý:</b> Bạn có một công việc sắp phải hoàn thành là <b>${card.title}</b></p>
         `
       };
-      testJob = cron.schedule(`0 0 * * 0-6`, async () => {
+      testJob = cron.schedule(`01 00 * * 0-6`, async () => {
         // chay moi ngay vao luc 00h00 de check neu ngay hien tai = voi ngay due date => thong bao
         if(today === date) {
           console.log('run cron day')
