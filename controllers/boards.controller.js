@@ -63,7 +63,7 @@ exports.createBoard = asyncHandler(async (req, res, next) => {
         },
         { new: true }
       );
-      await User.updateOne({}, { $addToSet: { boardId: board._id } }, { new: true });
+      await User.findOneAndUpdate({ _id: user }, { $addToSet: { boardId: board._id } }, { new: true });
       await CompletedTodo.create({ boardId: board._id });
       await TeamWork.create({
         ownerId: ownerProject._id,
