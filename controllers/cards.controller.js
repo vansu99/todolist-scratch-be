@@ -453,7 +453,7 @@ exports.removeSingleCardById = asyncHandler(async (req, res, next) => {
     const teamwork = await TeamTodo.findOne({ boardId });
 
     const memberTeamWork = teamwork.member.reduce((acc, curr) => {
-      if (curr.id.toString() === req.user) {
+      if (curr.id.toString() === req.user && !card.completed) {
         curr.failed === 0 ? curr.failed = 0 : curr.failed -=1;
         curr.completed === 0 ? curr.completed = 0 : curr.completed -= 1;
       }
